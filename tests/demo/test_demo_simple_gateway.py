@@ -4,7 +4,8 @@ from requests import Response
 
 from wexample_helpers_api.demo.demo_simple_gateway import DemoSimpleGateway
 from wexample_helpers.errors.gateway_connexion_error import GatewayConnectionError
-from wexample_prompt.io_manager import IoManager
+from wexample_helpers.errors.gateway_authentication_error import GatewayAuthenticationError
+from wexample_prompt.common.io_manager import IoManager
 
 
 @pytest.fixture
@@ -13,7 +14,14 @@ def io_manager():
 
 
 @pytest.fixture
-def gateway(io_manager):
+def mock_env(monkeypatch):
+    """Fixture to set up environment variables for tests"""
+    monkeypatch.setenv("DEMO_API_KEY", "test_api_key")
+
+
+@pytest.fixture
+def gateway(io_manager, mock_env):
+    """Gateway fixture that depends on mock_env to ensure environment variables are set"""
     return DemoSimpleGateway(
         base_url="https://api.example.com",
         io_manager=io_manager
@@ -132,3 +140,19 @@ def test_not_connected_error(gateway):
     # Act & Assert
     with pytest.raises(GatewayConnectionError):
         gateway.get_user_info()
+
+
+def test_missing_env_variable(io_manager, monkeypatch):
+    """Test that gateway initialization fails when required env variable is missing"""
+    # Remove the environment variable
+    monkeypatch.delenv("DEMO_API_KEY", raising=False)
+    
+    # Mock the IoManager's error method to prevent sys.exit
+    with patch.object(IoManager, 'error'):
+        # Act & Assert
+        with pytest.raises(GatewayAuthenticationError) as exc_info:
+            DemoSimpleGateway(
+                base_url="https://api.example.com",
+                io_manager=io_manager
+            )
+        assert "Missing required environment variables: DEMO_API_KEY" in str(exc_info.value)
