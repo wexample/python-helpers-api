@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wexample-helpers-api"
+version = "0.0.16"
+description = "Some python basic helpers for apis."
+readme = { file = "README.md", content-type = "text/markdown" }
+authors = [{ name = "weeger", email = "contact@wexample.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.6"
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "wexample_helpers",
+    "wexample_prompt"
+]
+
+[project.urls]
+homepage = "https://github.com/wexample/python-helpers-api"
