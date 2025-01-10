@@ -33,44 +33,28 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         return 'GatewayService'
 
     def connect(self) -> bool:
-        self.io_manager.info(f"Attempting connection to {self.base_url}")
-        if self.check_connection():
-            self.connected = True
-            self.io_manager.success(f"Successfully connected to {self.base_url}")
-            return True
-
-        self.io_manager.error(f"Failed to connect to {self.base_url}")
-        raise GatewayConnectionError("Failed to connect to the API")
+        self.connected = True
+        return True
 
     def check_connection(self) -> bool:
         try:
-            return self._check_url(self.base_url)
-        except Exception as e:
-            self.io_manager.error(f"Connection check failed: {str(e)}")
+            return not self.io.handle_api_response(
+                response=requests.get(
+                    self.base_url,
+                    timeout=self.timeout,
+                    headers=self.default_headers
+                )
+            )
+
+        except requests.exceptions.RequestException as e:
+            self.io.handle_api_response(
+                response=None,
+                exception=e,
+            )
             return False
 
     def get_expected_env_keys(self) -> StringsList:
         return []
-
-    def _check_url(self, url: str) -> bool:
-        try:
-            self.io_manager.debug(f"Checking URL: {url}")
-            response = requests.get(
-                url,
-                timeout=self.timeout,
-                headers=self.default_headers
-            )
-            status = response.status_code == 200
-            
-            # Use the new api_response method
-            error_response = self.io_manager.api_response(response)
-            if error_response:
-                return False
-                
-            return status
-        except requests.exceptions.RequestException as e:
-            self.io_manager.error(f"URL check failed with exception: {str(e)}")
-            return False
 
     def _handle_rate_limiting(self):
         if self.last_request_time is not None:
@@ -84,12 +68,14 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         method: str,
         endpoint: str,
         data: Optional[Dict[str, Any]] = None,
-        params: Optional[Dict[str, Any]] = None,
+        query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None
     ) -> requests.Response:
         if not self.connected:
-            self.io_manager.error(f"Attempted request while not connected")
-            raise GatewayConnectionError("Gateway is not connected")
+            self.io.handle_api_response(
+                response=None,
+                exception=GatewayConnectionError("Attempted request while not connected"),
+            )
 
         self._handle_rate_limiting()
 
@@ -97,35 +83,28 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         request_headers = {**self.default_headers, **(headers or {})}
 
         try:
-            self.io_manager.debug(f"Making {method} request to {full_url}")
-            if data:
-                self.io_manager.debug(f"Request data: {data}")
-            if params:
-                self.io_manager.debug(f"Request params: {params}")
-                
             response = requests.request(
                 method=method,
                 url=full_url,
                 json=data,
-                params=params,
+                params=query_params,
                 headers=request_headers,
                 timeout=self.timeout
             )
-            
-            # Use the new api_response method to handle errors
-            error_response = self.io_manager.api_response(response, context={
-                "method": method,
-                "endpoint": endpoint,
-                "data": data,
-                "params": params
-            })
-            
-            if error_response:
-                raise GatewayError(f"Request failed with status {response.status_code}")
-                
-            self.io_manager.debug(f"Request successful with status {response.status_code}")
-            return response
-            
+
+            # Handle response with params
+            self.io.handle_api_response(
+                response=response,
+                params={
+                    "method": method,
+                    "endpoint": endpoint,
+                    "data": data,
+                    "query_params": query_params
+                },
+            )
+
         except requests.exceptions.RequestException as e:
-            self.io_manager.error(f"Request failed with exception: {str(e)}")
-            raise GatewayError(f"Request failed: {str(e)}")
+            self.io.handle_api_response(
+                response=None,
+                exception=GatewayError(f"Request failed: {str(e)}"),
+            )
