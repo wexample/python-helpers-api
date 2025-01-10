@@ -74,8 +74,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         if not self.connected:
             self.io.handle_api_response(
                 response=None,
+                request_context=payload,
                 exception=GatewayConnectionError("Attempted request while not connected"),
-                request_context=payload
             )
 
         self._handle_rate_limiting()
