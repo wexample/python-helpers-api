@@ -4,7 +4,7 @@ from requests import Response
 
 from wexample_helpers_api.demo.demo_simple_gateway import DemoSimpleGateway
 from wexample_helpers.errors.gateway_connexion_error import GatewayConnectionError
-from wexample_prompt.common.io_manager import IoManager
+from wexample_prompt.io_manager import IoManager
 
 
 @pytest.fixture

@@ -18,6 +18,7 @@ classifiers = [
 ]
 
 dependencies = [
+    "requests",
     "wexample_helpers",
     "wexample_prompt"
 ]

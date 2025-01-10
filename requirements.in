@@ -1,2 +1,5 @@
 wexample_helpers
 wexample_prompt
+pytest
+pip-tools
+requests
