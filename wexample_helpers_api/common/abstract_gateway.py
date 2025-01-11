@@ -118,7 +118,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
 
         # Handle only when response is set to None.
         if response is None:
-            self.io.print_response(PropertiesPromptResponse.create(
+            self.io.print_response(PropertiesPromptResponse.create_properties(
                 request_details,
                 title="Request Details"
             ))
@@ -150,7 +150,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         # Add response status to request details
         request_details["Status"] = response.status_code
 
-        self.io.print_response(PropertiesPromptResponse.create(
+        self.io.print_response(PropertiesPromptResponse.create_properties(
             request_details,
             title="Request Details"
         ))
