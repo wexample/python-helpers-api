@@ -1,6 +1,6 @@
 import requests
 import time
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union
 from pydantic import BaseModel, Field
 from wexample_helpers.const.types import StringsList
 from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import HasSnakeShortClassNameClassMixin
@@ -9,6 +9,8 @@ from wexample_helpers.errors.gateway_error import GatewayError
 from wexample_helpers.errors.gateway_connexion_error import GatewayConnectionError
 from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
 from wexample_helpers_api.enums.http import HttpMethod
+from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
+from wexample_prompt.responses.properties_prompt_response import PropertiesPromptResponse
 
 
 class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, HasEnvKeys, BaseModel):
@@ -60,8 +62,6 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None
     ) -> requests.Response:
-        from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
-
         payload = HttpRequestPayload.from_endpoint(
             self.base_url,
             endpoint,
@@ -72,7 +72,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         )
 
         if not self.connected:
-            self.io.handle_api_response(
+            return self.handle_api_response(
                 response=None,
                 request_context=payload,
                 exception=GatewayConnectionError("Attempted request while not connected"),
@@ -81,7 +81,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         self._handle_rate_limiting()
 
         try:
-            return self.io.handle_api_response(
+            return self.handle_api_response(
                 response=requests.request(
                     method=payload.method,
                     url=payload.url,
@@ -94,8 +94,66 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             )
 
         except requests.exceptions.RequestException as e:
-            self.io.handle_api_response(
+            return self.handle_api_response(
                 response=None,
                 request_context=payload,
                 exception=GatewayError(f"Request failed: {str(e)}"),
             )
+
+    def handle_api_response(
+        self,
+        response: Optional[requests.Response],
+        request_context: HttpRequestPayload,
+        exception: Optional[Exception] = None,
+    ) -> Union[requests.Response, None]:
+        # Format request details for logging
+        request_details = {
+            "URL": request_context.url,
+            "Method": request_context.method
+        }
+        if request_context.data:
+            request_details["Data"] = request_context.data
+        if request_context.query_params:
+            request_details["Query Parameters"] = request_context.query_params
+
+        # Handle only when response is set to None.
+        if response is None:
+            self.io.print_response(PropertiesPromptResponse.create(
+                request_details,
+                title="Request Details"
+            ))
+
+            if exception:
+                self.io.error(f"Request failed: {str(exception)}", exception=exception)
+            return None
+
+        # Log request details at debug level
+        self.io.debug(
+            f"{request_context.method} {request_context.url} "
+            f"-> Status: {response.status_code}"
+        )
+
+        # Handle response based on status code
+        if 200 <= response.status_code < 300:
+            return response
+        
+        # Handle error response
+        error_msg = f"HTTP {response.status_code}"
+        try:
+            error_data = response.json()
+            if isinstance(error_data, dict):
+                error_msg = error_data.get("message", error_data.get("error", error_msg))
+        except (ValueError, AttributeError):
+            if response.text:
+                error_msg = response.text
+
+        # Add response status to request details
+        request_details["Status"] = response.status_code
+
+        self.io.print_response(PropertiesPromptResponse.create(
+            request_details,
+            title="Request Details"
+        ))
+
+        self.io.error(error_msg)
+        return None
