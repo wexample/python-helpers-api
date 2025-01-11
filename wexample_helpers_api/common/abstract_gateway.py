@@ -57,7 +57,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
     def make_request(
         self,
         endpoint: str,
-        method: str = HttpMethod.GET,
+        method: HttpMethod = HttpMethod.GET,
         data: Optional[Dict[str, Any]] = None,
         query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None
@@ -83,7 +83,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         try:
             return self.handle_api_response(
                 response=requests.request(
-                    method=payload.method,
+                    method=payload.method.value,  # Convert enum to string
                     url=payload.url,
                     json=payload.data,
                     params=payload.query_params,

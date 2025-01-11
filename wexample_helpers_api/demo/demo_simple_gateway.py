@@ -2,6 +2,7 @@ from typing import Dict, Any, Optional
 
 from wexample_helpers_api.common.abstract_gateway import AbstractGateway
 from wexample_helpers.const.types import StringsList
+from wexample_helpers_api.enums.http import HttpMethod
 
 
 class DemoSimpleGateway(AbstractGateway):
@@ -17,7 +18,7 @@ class DemoSimpleGateway(AbstractGateway):
     def get_user_info(self) -> Dict[str, Any]:
         """Demo method to get user information."""
         response = self.make_request(
-            method="GET",
+            method=HttpMethod.GET,
             endpoint="/user",
         )
         return response.json()
@@ -25,7 +26,7 @@ class DemoSimpleGateway(AbstractGateway):
     def create_item(self, item_data: Dict[str, Any]) -> Dict[str, Any]:
         """Demo method to create an item."""
         response = self.make_request(
-            method="POST",
+            method=HttpMethod.POST,
             endpoint="/items",
             data=item_data
         )
@@ -34,7 +35,7 @@ class DemoSimpleGateway(AbstractGateway):
     def update_item(self, item_id: str, item_data: Dict[str, Any]) -> Dict[str, Any]:
         """Demo method to update an item."""
         response = self.make_request(
-            method="PUT",
+            method=HttpMethod.PUT,
             endpoint=f"/items/{item_id}",
             data=item_data
         )
@@ -43,6 +44,6 @@ class DemoSimpleGateway(AbstractGateway):
     def delete_item(self, item_id: str) -> None:
         """Demo method to delete an item."""
         self.make_request(
-            method="DELETE",
+            method=HttpMethod.DELETE,
             endpoint=f"/items/{item_id}"
         )
