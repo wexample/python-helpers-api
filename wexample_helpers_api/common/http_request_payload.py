@@ -5,7 +5,7 @@ from wexample_helpers_api.enums.http import HttpMethod
 
 class HttpRequestPayload(BaseModel):
     url: str
-    method: str = HttpMethod.GET
+    method: HttpMethod = HttpMethod.GET
     data: Optional[Dict[str, Any]] = None
     query_params: Optional[Dict[str, Any]] = None
     headers: Optional[Dict[str, str]] = None
@@ -19,7 +19,7 @@ class HttpRequestPayload(BaseModel):
         cls,
         base_url: str,
         endpoint: str,
-        method: str = HttpMethod.GET,
+        method: HttpMethod = HttpMethod.GET,
         data: Optional[Dict[str, Any]] = None,
         query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None
