@@ -14,7 +14,7 @@ class TestHttpRequestPayload(unittest.TestCase):
         payload = HttpRequestPayload.from_url(url)
 
         self.assertEqual(payload.url, url)
-        self.assertEqual(payload.method, HttpMethod.GET.value)
+        self.assertEqual(payload.method, HttpMethod.GET)
         self.assertIsNone(payload.data)
         self.assertIsNone(payload.query_params)
         self.assertIsNone(payload.headers)
@@ -26,7 +26,7 @@ class TestHttpRequestPayload(unittest.TestCase):
         payload = HttpRequestPayload.from_endpoint(base_url, endpoint)
 
         self.assertEqual(payload.url, "https://api.example.com/users")
-        self.assertEqual(payload.method, HttpMethod.GET.value)
+        self.assertEqual(payload.method, HttpMethod.GET)
         self.assertIsNone(payload.data)
         self.assertIsNone(payload.query_params)
         self.assertIsNone(payload.headers)
@@ -66,7 +66,7 @@ class TestHttpRequestPayload(unittest.TestCase):
         )
 
         self.assertEqual(payload.url, "https://api.example.com/users")
-        self.assertEqual(payload.method, HttpMethod.POST.value)
+        self.assertEqual(payload.method, HttpMethod.POST)
         self.assertEqual(payload.data, data)
         self.assertEqual(payload.query_params, query_params)
         self.assertEqual(payload.headers, headers)
@@ -88,7 +88,7 @@ class TestHttpRequestPayload(unittest.TestCase):
         )
 
         self.assertEqual(payload.url, url)
-        self.assertEqual(payload.method, method.value)
+        self.assertEqual(payload.method, method)
         self.assertEqual(payload.data, data)
         self.assertEqual(payload.query_params, query_params)
         self.assertEqual(payload.headers, headers)
