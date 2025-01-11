@@ -20,7 +20,9 @@ classifiers = [
 dependencies = [
     "requests",
     "wexample_helpers",
-    "wexample_prompt"
+    "wexample_prompt",
+    "pytest",
+    "pip-tools",
 ]
 
 [project.urls]
