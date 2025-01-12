@@ -85,6 +85,15 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             details["Status"] = status_code
         return details
 
+    def _get_response_content(self, response: requests.Response) -> Dict[str, Any]:
+        """Extract and format response content for logging."""
+        try:
+            return {"Response Content": response.json()}
+        except (ValueError, AttributeError):
+            if response.text:
+                return {"Response Content": response.text}
+            return {"Response Content": "No content"}
+
     def make_request(
         self,
         endpoint: str,
@@ -169,7 +178,12 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         if response.status_code in request_context.expected_status_codes:
             return response
 
-        request_details = self._create_request_details(request_context, response.status_code)
+        # Combine request details with response content
+        request_details = {
+            **self._create_request_details(request_context, response.status_code),
+            **self._get_response_content(response)
+        }
+
         self.io.print_response(PropertiesPromptResponse.create_properties(
             request_details,
             title="Request Details"
