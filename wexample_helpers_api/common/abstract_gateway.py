@@ -57,6 +57,34 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
                 time.sleep(self.rate_limit_delay - elapsed)
         self.last_request_time = time.time()
 
+    def _extract_error_message(self, response: requests.Response) -> str:
+        """Extract error message from response."""
+        error_msg = f"HTTP {response.status_code}"
+        try:
+            error_data = response.json()
+            if isinstance(error_data, dict):
+                error_msg = error_data.get("message", error_data.get("error", error_msg))
+        except (ValueError, AttributeError):
+            if response.text:
+                error_msg = response.text
+        return error_msg
+
+    def _create_request_details(self, request_context: HttpRequestPayload, status_code: Optional[int] = None) -> Dict[str, Any]:
+        """Create request details dictionary for logging."""
+        details = {
+            "URL": request_context.url,
+            "Method": request_context.method
+        }
+        if request_context.call_origin:
+            details["Call Origin"] = cli_make_clickable_path(request_context.call_origin)
+        if request_context.data:
+            details["Data"] = request_context.data
+        if request_context.query_params:
+            details["Query Parameters"] = request_context.query_params
+        if status_code is not None:
+            details["Status"] = status_code
+        return details
+
     def make_request(
         self,
         endpoint: str,
@@ -86,7 +114,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
 
         try:
             response = requests.request(
-                method=payload.method.value,  # Convert enum to string
+                method=payload.method.value,
                 url=payload.url,
                 json=payload.data,
                 params=payload.query_params,
@@ -94,20 +122,9 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
                 timeout=self.timeout
             )
 
-            # Create an exception for unexpected status codes
+            exception = None
             if response.status_code not in payload.expected_status_codes:
-                error_msg = f"HTTP {response.status_code}"
-                try:
-                    error_data = response.json()
-                    if isinstance(error_data, dict):
-                        error_msg = error_data.get("message", error_data.get("error", error_msg))
-                except (ValueError, AttributeError):
-                    if response.text:
-                        error_msg = response.text
-                        
-                exception = GatewayError(error_msg)
-            else:
-                exception = None
+                exception = GatewayError(self._extract_error_message(response))
 
             return self.handle_api_response(
                 response=response,
@@ -131,25 +148,11 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         exception: Optional[Exception] = None,
         fatal_on_error: bool = False
     ) -> Union[requests.Response, None]:
-        # Format request details for logging
-        request_details = {
-            "URL": request_context.url,
-            "Method": request_context.method
-        }
-        if request_context.call_origin:
-            request_details["Call Origin"] = cli_make_clickable_path(request_context.call_origin)
-        if request_context.data:
-            request_details["Data"] = request_context.data
-        if request_context.query_params:
-            request_details["Query Parameters"] = request_context.query_params
-
-        # Handle only when response is set to None.
         if response is None:
             self.io.print_response(PropertiesPromptResponse.create_properties(
-                request_details,
+                self._create_request_details(request_context),
                 title="Request Details"
             ))
-
             if exception:
                 self.io.error(
                     f"Request failed: {str(exception)}",
@@ -158,36 +161,22 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
                 )
             return None
 
-        # Log request details at debug level
         self.io.debug(
             f"{request_context.method} {request_context.url} "
             f"-> Status: {response.status_code}"
         )
 
-        # Handle response based on status code
         if response.status_code in request_context.expected_status_codes:
             return response
 
-        # Handle error response
-        error_msg = f"HTTP {response.status_code}"
-        try:
-            error_data = response.json()
-            if isinstance(error_data, dict):
-                error_msg = error_data.get("message", error_data.get("error", error_msg))
-        except (ValueError, AttributeError):
-            if response.text:
-                error_msg = response.text
-
-        # Add response status to request details
-        request_details["Status"] = response.status_code
-
+        request_details = self._create_request_details(request_context, response.status_code)
         self.io.print_response(PropertiesPromptResponse.create_properties(
             request_details,
             title="Request Details"
         ))
 
         self.io.error(
-            message=error_msg,
+            message=str(exception) if exception else self._extract_error_message(response),
             exception=exception,
             fatal=fatal_on_error
         )
