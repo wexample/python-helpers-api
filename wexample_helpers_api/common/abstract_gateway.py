@@ -1,16 +1,17 @@
-import requests
 import time
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any, Union, List
+
+import requests
 from pydantic import BaseModel, Field
-from wexample_helpers.const.types import StringsList
-from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import HasSnakeShortClassNameClassMixin
+
 from wexample_helpers.classes.mixin.has_env_keys import HasEnvKeys
+from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import HasSnakeShortClassNameClassMixin
+from wexample_helpers.const.types import StringsList
 from wexample_helpers.errors.gateway_error import GatewayError
-from wexample_helpers.errors.gateway_connexion_error import GatewayConnectionError
 from wexample_helpers.helpers.cli import cli_make_clickable_path
-from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
-from wexample_helpers_api.enums.http import HttpMethod
 from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
+from wexample_helpers_api.enums.http import HttpMethod
+from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
 from wexample_prompt.responses.properties_prompt_response import PropertiesPromptResponse
 
 
@@ -63,7 +64,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         data: Optional[Dict[str, Any]] = None,
         query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-        call_origin: Optional[str] = None
+        call_origin: Optional[str] = None,
+        expected_status_codes: Optional[List[int]] = None
     ) -> requests.Response:
         payload = HttpRequestPayload.from_endpoint(
             self.base_url,
@@ -72,15 +74,12 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             data,
             query_params,
             {**self.default_headers, **(headers or {})},
-            call_origin=call_origin
+            call_origin=call_origin,
+            expected_status_codes=expected_status_codes or [200]
         )
 
         if not self.connected:
-            return self.handle_api_response(
-                response=None,
-                request_context=payload,
-                exception=GatewayConnectionError("Attempted request while not connected"),
-            )
+            self.connect()
 
         self._handle_rate_limiting()
 
@@ -140,9 +139,9 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         )
 
         # Handle response based on status code
-        if 200 <= response.status_code < 300:
+        if response.status_code in request_context.expected_status_codes:
             return response
-        
+
         # Handle error response
         error_msg = f"HTTP {response.status_code}"
         try:

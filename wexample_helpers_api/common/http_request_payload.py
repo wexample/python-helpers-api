@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from pydantic import BaseModel, Field
 from wexample_helpers_api.enums.http import HttpMethod
@@ -10,6 +10,7 @@ class HttpRequestPayload(BaseModel):
     query_params: Optional[Dict[str, Any]] = None
     headers: Optional[Dict[str, str]] = None
     call_origin: Optional[str] = None
+    expected_status_codes: List[int] = [200]
 
     @classmethod
     def from_url(cls, url: str, call_origin: Optional[str] = None) -> "HttpRequestPayload":
@@ -24,7 +25,8 @@ class HttpRequestPayload(BaseModel):
         data: Optional[Dict[str, Any]] = None,
         query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
-        call_origin: Optional[str] = None
+        call_origin: Optional[str] = None,
+        expected_status_codes: Optional[List[int]] = None
     ) -> "HttpRequestPayload":
         url = f"{base_url.rstrip('/')}/{endpoint.lstrip('/')}"
         return cls(
@@ -33,5 +35,6 @@ class HttpRequestPayload(BaseModel):
             data=data,
             query_params=query_params,
             headers=headers,
-            call_origin=call_origin
+            call_origin=call_origin,
+            expected_status_codes=expected_status_codes or [200]
         )
