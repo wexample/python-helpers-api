@@ -7,6 +7,7 @@ from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin impor
 from wexample_helpers.classes.mixin.has_env_keys import HasEnvKeys
 from wexample_helpers.errors.gateway_error import GatewayError
 from wexample_helpers.errors.gateway_connexion_error import GatewayConnectionError
+from wexample_helpers.helpers.cli import cli_make_clickable_path
 from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
 from wexample_helpers_api.enums.http import HttpMethod
 from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
@@ -115,7 +116,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             "Method": request_context.method
         }
         if request_context.call_origin:
-            request_details["Call Origin"] = request_context.call_origin
+            request_details["Call Origin"] = cli_make_clickable_path(request_context.call_origin)
         if request_context.data:
             request_details["Data"] = request_context.data
         if request_context.query_params:
