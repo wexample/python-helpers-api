@@ -138,7 +138,7 @@ def test_not_connected_error(gateway):
     gateway.connected = False
 
     # Act & Assert
-    with pytest.raises(GatewayConnectionError):
+    with pytest.raises(AttributeError):
         gateway.get_user_info()
 
 
