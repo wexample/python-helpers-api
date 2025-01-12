@@ -41,7 +41,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
 
     def check_connection(self) -> requests.Response:
         return self.make_request(
-            endpoint=self.base_url
+            endpoint=self.base_url,
+            call_origin=__file__
         )
 
     def get_expected_env_keys(self) -> StringsList:
@@ -60,7 +61,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         method: HttpMethod = HttpMethod.GET,
         data: Optional[Dict[str, Any]] = None,
         query_params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None
+        headers: Optional[Dict[str, str]] = None,
+        call_origin: Optional[str] = None
     ) -> requests.Response:
         payload = HttpRequestPayload.from_endpoint(
             self.base_url,
@@ -68,7 +70,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             method,
             data,
             query_params,
-            {**self.default_headers, **(headers or {})}
+            {**self.default_headers, **(headers or {})},
+            call_origin=call_origin
         )
 
         if not self.connected:
@@ -111,6 +114,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             "URL": request_context.url,
             "Method": request_context.method
         }
+        if request_context.call_origin:
+            request_details["Call Origin"] = request_context.call_origin
         if request_context.data:
             request_details["Data"] = request_context.data
         if request_context.query_params:

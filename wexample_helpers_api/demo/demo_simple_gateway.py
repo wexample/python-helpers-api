@@ -20,6 +20,7 @@ class DemoSimpleGateway(AbstractGateway):
         response = self.make_request(
             method=HttpMethod.GET,
             endpoint="/user",
+            call_origin=__file__
         )
         return response.json()
 
@@ -28,7 +29,8 @@ class DemoSimpleGateway(AbstractGateway):
         response = self.make_request(
             method=HttpMethod.POST,
             endpoint="/items",
-            data=item_data
+            data=item_data,
+            call_origin=__file__
         )
         return response.json()
 
@@ -37,7 +39,8 @@ class DemoSimpleGateway(AbstractGateway):
         response = self.make_request(
             method=HttpMethod.PUT,
             endpoint=f"/items/{item_id}",
-            data=item_data
+            data=item_data,
+            call_origin=__file__
         )
         return response.json()
 
@@ -45,5 +48,6 @@ class DemoSimpleGateway(AbstractGateway):
         """Demo method to delete an item."""
         self.make_request(
             method=HttpMethod.DELETE,
-            endpoint=f"/items/{item_id}"
+            endpoint=f"/items/{item_id}",
+            call_origin=__file__
         )

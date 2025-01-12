@@ -9,10 +9,11 @@ class HttpRequestPayload(BaseModel):
     data: Optional[Dict[str, Any]] = None
     query_params: Optional[Dict[str, Any]] = None
     headers: Optional[Dict[str, str]] = None
+    call_origin: Optional[str] = None
 
     @classmethod
-    def from_url(cls, url: str) -> "HttpRequestPayload":
-        return cls(url=url)
+    def from_url(cls, url: str, call_origin: Optional[str] = None) -> "HttpRequestPayload":
+        return cls(url=url, call_origin=call_origin)
 
     @classmethod
     def from_endpoint(
@@ -22,7 +23,8 @@ class HttpRequestPayload(BaseModel):
         method: HttpMethod = HttpMethod.GET,
         data: Optional[Dict[str, Any]] = None,
         query_params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None
+        headers: Optional[Dict[str, str]] = None,
+        call_origin: Optional[str] = None
     ) -> "HttpRequestPayload":
         url = f"{base_url.rstrip('/')}/{endpoint.lstrip('/')}"
         return cls(
@@ -30,5 +32,6 @@ class HttpRequestPayload(BaseModel):
             method=method,
             data=data,
             query_params=query_params,
-            headers=headers
+            headers=headers,
+            call_origin=call_origin
         )
