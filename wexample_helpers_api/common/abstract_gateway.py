@@ -65,7 +65,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
         call_origin: Optional[str] = None,
-        expected_status_codes: Optional[List[int]] = None
+        expected_status_codes: Optional[List[int]] = None,
+        fatal_if_unexpected: bool = False
     ) -> requests.Response:
         payload = HttpRequestPayload.from_endpoint(
             self.base_url,
@@ -84,16 +85,35 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         self._handle_rate_limiting()
 
         try:
+            response = requests.request(
+                method=payload.method.value,  # Convert enum to string
+                url=payload.url,
+                json=payload.data,
+                params=payload.query_params,
+                headers=payload.headers,
+                timeout=self.timeout
+            )
+
+            # Create an exception for unexpected status codes
+            if response.status_code not in payload.expected_status_codes:
+                error_msg = f"HTTP {response.status_code}"
+                try:
+                    error_data = response.json()
+                    if isinstance(error_data, dict):
+                        error_msg = error_data.get("message", error_data.get("error", error_msg))
+                except (ValueError, AttributeError):
+                    if response.text:
+                        error_msg = response.text
+                        
+                exception = GatewayError(error_msg)
+            else:
+                exception = None
+
             return self.handle_api_response(
-                response=requests.request(
-                    method=payload.method.value,  # Convert enum to string
-                    url=payload.url,
-                    json=payload.data,
-                    params=payload.query_params,
-                    headers=payload.headers,
-                    timeout=self.timeout
-                ),
-                request_context=payload
+                response=response,
+                request_context=payload,
+                exception=exception,
+                fatal_on_error=fatal_if_unexpected
             )
 
         except requests.exceptions.RequestException as e:
@@ -101,6 +121,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
                 response=None,
                 request_context=payload,
                 exception=GatewayError(f"Request failed: {str(e)}"),
+                fatal_on_error=fatal_if_unexpected
             )
 
     def handle_api_response(
@@ -108,6 +129,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         response: Optional[requests.Response],
         request_context: HttpRequestPayload,
         exception: Optional[Exception] = None,
+        fatal_on_error: bool = False
     ) -> Union[requests.Response, None]:
         # Format request details for logging
         request_details = {
@@ -129,7 +151,11 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             ))
 
             if exception:
-                self.io.error(f"Request failed: {str(exception)}", exception=exception)
+                self.io.error(
+                    f"Request failed: {str(exception)}",
+                    exception=exception,
+                    fatal=fatal_on_error
+                )
             return None
 
         # Log request details at debug level
@@ -160,5 +186,10 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             title="Request Details"
         ))
 
-        self.io.error(error_msg)
+        self.io.error(
+            message=error_msg,
+            exception=exception,
+            fatal=fatal_on_error
+        )
+
         return None
