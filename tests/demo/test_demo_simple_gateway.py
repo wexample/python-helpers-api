@@ -3,8 +3,7 @@ from unittest.mock import patch, MagicMock
 from requests import Response
 
 from wexample_helpers_api.demo.demo_simple_gateway import DemoSimpleGateway
-from wexample_helpers.errors.gateway_connexion_error import GatewayConnectionError
-from wexample_helpers.errors.gateway_authentication_error import GatewayAuthenticationError
+from wexample_helpers_api.errors.gateway_authentication_error import GatewayAuthenticationError
 from wexample_prompt.common.io_manager import IoManager
 
 
