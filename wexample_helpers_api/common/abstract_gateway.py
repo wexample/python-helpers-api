@@ -45,11 +45,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         self.connected = True
         return True
 
-    def check_connection(self) -> requests.Response:
-        return self.make_request(
-            endpoint=self.get_base_url(),
-            call_origin=__file__
-        )
+    def check_connexion(self) -> bool:
+        return self.connected
 
     def get_expected_env_keys(self) -> StringsList:
         return []
