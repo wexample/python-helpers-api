@@ -48,6 +48,14 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
     def check_connexion(self) -> bool:
         return self.connected
 
+    def check_status_code(self, expected_status_codes: Union[int, List[int]] = 200) -> bool:
+        # 421 is the default code from the root api.
+        return self.make_request(
+            endpoint='',
+            expected_status_codes=expected_status_codes,
+            quiet=True
+        ).status_code in ([expected_status_codes] if isinstance(expected_status_codes, int) else expected_status_codes)
+
     def get_expected_env_keys(self) -> StringsList:
         return []
 
@@ -104,7 +112,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
         call_origin: Optional[str] = None,
-        expected_status_codes: Optional[List[int]] = None,
+        expected_status_codes: Optional[Union[int, List[int]]] = None,
         fatal_if_unexpected: bool = False,
         quiet: Optional[bool] = None
     ) -> requests.Response:
@@ -116,7 +124,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             query_params,
             {**self.default_headers, **(headers or {})},
             call_origin=call_origin,
-            expected_status_codes=expected_status_codes or [200]
+            expected_status_codes=expected_status_codes
         )
 
         if not self.connected:

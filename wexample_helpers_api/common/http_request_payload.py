@@ -1,7 +1,9 @@
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+
 from wexample_helpers_api.enums.http import HttpMethod
+
 
 class HttpRequestPayload(BaseModel):
     url: str
@@ -26,9 +28,15 @@ class HttpRequestPayload(BaseModel):
         query_params: Optional[Dict[str, Any]] = None,
         headers: Optional[Dict[str, str]] = None,
         call_origin: Optional[str] = None,
-        expected_status_codes: Optional[List[int]] = None
+        expected_status_codes: Optional[Union[int, List[int]]] = None
     ) -> "HttpRequestPayload":
         url = f"{base_url.rstrip('/')}/{endpoint.lstrip('/')}"
+
+        if isinstance(expected_status_codes, int):
+            expected_status_codes = [expected_status_codes]
+        elif expected_status_codes is None:
+            expected_status_codes = [200]
+
         return cls(
             url=url,
             method=method,
@@ -36,5 +44,5 @@ class HttpRequestPayload(BaseModel):
             query_params=query_params,
             headers=headers,
             call_origin=call_origin,
-            expected_status_codes=expected_status_codes or [200]
+            expected_status_codes=expected_status_codes
         )
