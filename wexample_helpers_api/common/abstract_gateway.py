@@ -17,7 +17,7 @@ from wexample_prompt.responses.properties_prompt_response import PropertiesPromp
 
 class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, HasEnvKeys, BaseModel):
     # Base configuration
-    base_url: str = Field(..., description="Base API URL")
+    base_url: Optional[str] = Field(default=None, description="Base API URL")
     timeout: int = Field(default=30, description="Request timeout in seconds")
 
     # State
@@ -37,13 +37,16 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
     def get_class_name_suffix(cls) -> Optional[str]:
         return 'GatewayService'
 
+    def get_base_url(self) -> Optional[str]:
+        return self.base_url
+
     def connect(self) -> bool:
         self.connected = True
         return True
 
     def check_connection(self) -> requests.Response:
         return self.make_request(
-            endpoint=self.base_url,
+            endpoint=self.get_base_url(),
             call_origin=__file__
         )
 
@@ -69,7 +72,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
                 error_msg = response.text
         return error_msg
 
-    def _create_request_details(self, request_context: HttpRequestPayload, status_code: Optional[int] = None) -> Dict[str, Any]:
+    def _create_request_details(self, request_context: HttpRequestPayload, status_code: Optional[int] = None) -> Dict[
+        str, Any]:
         """Create request details dictionary for logging."""
         details = {
             "URL": request_context.url,
@@ -106,7 +110,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         fatal_if_unexpected: bool = False
     ) -> requests.Response:
         payload = HttpRequestPayload.from_endpoint(
-            self.base_url,
+            self.get_base_url(),
             endpoint,
             method,
             data,
