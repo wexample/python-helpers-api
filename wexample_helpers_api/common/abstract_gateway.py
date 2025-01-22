@@ -19,6 +19,7 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
     # Base configuration
     base_url: Optional[str] = Field(default=None, description="Base API URL")
     timeout: int = Field(default=30, description="Request timeout in seconds")
+    quiet: bool = Field(default=False, description="If True, only show errors and warnings")
 
     # State
     connected: bool = Field(default=False, description="Connection state")
@@ -107,7 +108,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         headers: Optional[Dict[str, str]] = None,
         call_origin: Optional[str] = None,
         expected_status_codes: Optional[List[int]] = None,
-        fatal_if_unexpected: bool = False
+        fatal_if_unexpected: bool = False,
+        quiet: Optional[bool] = None
     ) -> requests.Response:
         payload = HttpRequestPayload.from_endpoint(
             self.get_base_url(),
@@ -143,7 +145,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
                 response=response,
                 request_context=payload,
                 exception=exception,
-                fatal_on_error=fatal_if_unexpected
+                fatal_on_error=fatal_if_unexpected,
+                quiet=quiet
             )
 
         except requests.exceptions.RequestException as e:
@@ -151,7 +154,8 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
                 response=None,
                 request_context=payload,
                 exception=GatewayError(f"Request failed: {str(e)}"),
-                fatal_on_error=fatal_if_unexpected
+                fatal_on_error=fatal_if_unexpected,
+                quiet=quiet
             )
 
     def handle_api_response(
@@ -159,13 +163,18 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         response: Optional[requests.Response],
         request_context: HttpRequestPayload,
         exception: Optional[Exception] = None,
-        fatal_on_error: bool = False
+        fatal_on_error: bool = False,
+        quiet: Optional[bool] = None
     ) -> Union[requests.Response, None]:
+        # Use request-specific quiet setting if provided, otherwise use class setting
+        is_quiet = self.quiet if quiet is None else quiet
+
         if response is None:
-            self.io.print_response(PropertiesPromptResponse.create_properties(
-                self._create_request_details(request_context),
-                title="Request Details"
-            ))
+            if not is_quiet:
+                self.io.print_response(PropertiesPromptResponse.create_properties(
+                    self._create_request_details(request_context),
+                    title="Request Details"
+                ))
             if exception:
                 self.io.error(
                     f"Request failed: {str(exception)}",
@@ -174,10 +183,11 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
                 )
             return None
 
-        self.io.debug(
-            f"{request_context.method} {request_context.url} "
-            f"-> Status: {response.status_code}"
-        )
+        if not is_quiet:
+            self.io.debug(
+                f"{request_context.method} {request_context.url} "
+                f"-> Status: {response.status_code}"
+            )
 
         if response.status_code in request_context.expected_status_codes:
             return response
@@ -188,10 +198,11 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             **self._get_response_content(response)
         }
 
-        self.io.print_response(PropertiesPromptResponse.create_properties(
-            request_details,
-            title="Request Details"
-        ))
+        if not is_quiet:
+            self.io.print_response(PropertiesPromptResponse.create_properties(
+                request_details,
+                title="Request Details"
+            ))
 
         self.io.error(
             message=str(exception) if exception else self._extract_error_message(response),
