@@ -19,11 +19,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
+    "pip-tools",
+    "pytest",
     "requests",
     "wexample-helpers==0.0.18",
     "wexample-prompt==0.0.17",
-    "pytest",
-    "pip-tools",
 ]
 
 [project.readme]
