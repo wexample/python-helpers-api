@@ -62,9 +62,9 @@ urllib3==2.3.0
 # via requests
 wcwidth==0.2.13
 # via prompt-toolkit
-wexample-helpers==0.0.19
+wexample-helpers==0.0.20
 # via -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
-wexample-prompt==0.0.18
+wexample-prompt==0.0.19
 # via -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
 wheel==0.45.1
 # via pip-tools
