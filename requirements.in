@@ -1,5 +1,5 @@
-wexample_helpers
-wexample_prompt
+wexample-helpers
+wexample-prompt
 pytest
 pip-tools
 requests
