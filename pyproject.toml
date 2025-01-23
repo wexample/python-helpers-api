@@ -20,8 +20,8 @@ classifiers = [
 ]
 dependencies = [
     "requests",
-    "wexample_helpers",
-    "wexample_prompt",
+    "wexample-helpers==0.0.18",
+    "wexample-prompt==0.0.17",
     "pytest",
     "pip-tools",
 ]
