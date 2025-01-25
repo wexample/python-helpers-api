@@ -4,6 +4,7 @@ from requests import Response
 
 from wexample_helpers_api.demo.demo_simple_gateway import DemoSimpleGateway
 from wexample_helpers_api.errors.gateway_authentication_error import GatewayAuthenticationError
+from wexample_helpers_api.errors.missing_required_env_var_error import MissingRequiredEnvVarError
 from wexample_prompt.common.io_manager import IoManager
 
 
@@ -149,7 +150,7 @@ def test_missing_env_variable(io_manager, monkeypatch):
     # Mock the IoManager's error method to prevent sys.exit
     with patch.object(IoManager, 'error'):
         # Act & Assert
-        with pytest.raises(GatewayAuthenticationError) as exc_info:
+        with pytest.raises(MissingRequiredEnvVarError) as exc_info:
             DemoSimpleGateway(
                 base_url="https://api.example.com",
                 io_manager=io_manager
