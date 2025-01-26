@@ -1,0 +1,31 @@
+# Helpers Api
+
+Some python basic helpers for apis.
+
+Version: 0.0.5
+
+## Requirements
+
+- Python >=3.6
+
+## Dependencies
+
+- pip-tools
+- pytest
+- requests
+- wexample-helpers==0.0.20
+- wexample-prompt==0.0.19
+
+## Installation
+
+```bash
+pip install wexample-helpers-api
+```
+
+## Links
+
+- Homepage: https://github.com/wexample/python-helpers-api
+
+## License
+
+MIT
