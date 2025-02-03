@@ -12,7 +12,6 @@ from wexample_helpers.helpers.cli import cli_make_clickable_path
 from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
 from wexample_helpers_api.enums.http import HttpMethod
 from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
-from wexample_prompt.responses.properties_prompt_response import PropertiesPromptResponse
 
 
 class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, HasEnvKeys, BaseModel):
@@ -176,10 +175,10 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
 
         if response is None:
             if not is_quiet:
-                self.io.print_response(PropertiesPromptResponse.create_properties(
+                self.io.properties(
                     self._create_request_details(request_context),
                     title="Request Details"
-                ))
+                )
             if exception:
                 self.io.error(
                     f"Request failed: {str(exception)}",
@@ -204,10 +203,10 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
         }
 
         if not is_quiet:
-            self.io.print_response(PropertiesPromptResponse.create_properties(
+            self.io.properties(
                 request_details,
                 title="Request Details"
-            ))
+            )
 
         self.io.error(
             message=str(exception) if exception else self._extract_error_message(response),
