@@ -2,7 +2,7 @@
 
 Some python basic helpers for apis.
 
-Version: 0.0.11
+Version: 0.0.13
 
 ## Requirements
 
@@ -13,8 +13,8 @@ Version: 0.0.11
 - pip-tools
 - pytest
 - requests
-- wexample-helpers==0.0.26
-- wexample-prompt==0.0.27
+- wexample-helpers==0.0.28
+- wexample-prompt==0.0.29
 
 ## Installation
 
