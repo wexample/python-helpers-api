@@ -14,7 +14,7 @@ Version: 0.0.11
 - pytest
 - requests
 - wexample-helpers==0.0.26
-- wexample-prompt==0.0.25
+- wexample-prompt==0.0.27
 
 ## Installation
 
