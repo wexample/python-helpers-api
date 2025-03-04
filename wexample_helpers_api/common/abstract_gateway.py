@@ -30,6 +30,9 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
 
     def model_post_init(self, *args, **kwargs):
         super().model_post_init(*args, **kwargs)
+
+        self._validate_env_keys()
+
         if self.default_headers is None:
             self.default_headers = {}
 
