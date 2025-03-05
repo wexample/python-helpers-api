@@ -107,16 +107,16 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             return {"Response Content": "No content"}
 
     def make_request(
-        self,
-        endpoint: str,
-        method: HttpMethod = HttpMethod.GET,
-        data: Optional[Dict[str, Any]] = None,
-        query_params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        call_origin: Optional[str] = None,
-        expected_status_codes: Optional[Union[int, List[int]]] = None,
-        fatal_if_unexpected: bool = False,
-        quiet: Optional[bool] = None
+            self,
+            endpoint: str,
+            method: HttpMethod = HttpMethod.GET,
+            data: Optional[Dict[str, Any]] = None,
+            query_params: Optional[Dict[str, Any]] = None,
+            headers: Optional[Dict[str, str]] = None,
+            call_origin: Optional[str] = None,
+            expected_status_codes: Optional[Union[int, List[int]]] = None,
+            fatal_if_unexpected: bool = False,
+            quiet: Optional[bool] = None
     ) -> requests.Response:
         payload = HttpRequestPayload.from_endpoint(
             self.get_base_url(),
@@ -166,12 +166,12 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
             )
 
     def handle_api_response(
-        self,
-        response: Optional[requests.Response],
-        request_context: HttpRequestPayload,
-        exception: Optional[Exception] = None,
-        fatal_on_error: bool = False,
-        quiet: Optional[bool] = None
+            self,
+            response: Optional[requests.Response],
+            request_context: HttpRequestPayload,
+            exception: Optional[Exception] = None,
+            fatal_on_error: bool = False,
+            quiet: Optional[bool] = None
     ) -> Union[requests.Response, None]:
         # Use request-specific quiet setting if provided, otherwise use class setting
         is_quiet = self.quiet if quiet is None else quiet
