@@ -1,11 +1,12 @@
-import time
-from typing import Optional, Dict, Any, Union, List
+from typing import Optional, Dict, Any, Union, List, TYPE_CHECKING
 
 import requests
+import time
 from pydantic import BaseModel, Field
 
 from wexample_helpers.classes.mixin.has_env_keys import HasEnvKeys
 from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import HasSnakeShortClassNameClassMixin
+from wexample_helpers.classes.mixin.has_two_steps_init import HasTwoStepInit
 from wexample_helpers.const.types import StringsList
 from wexample_helpers.errors.gateway_error import GatewayError
 from wexample_helpers.helpers.cli import cli_make_clickable_path
@@ -13,8 +14,17 @@ from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
 from wexample_helpers_api.enums.http import HttpMethod
 from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
 
+if TYPE_CHECKING:
+    pass
 
-class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, HasEnvKeys, BaseModel):
+
+class AbstractGateway(
+    HasSnakeShortClassNameClassMixin,
+    WithRequiredIoManager,
+    HasEnvKeys,
+    HasTwoStepInit,
+    BaseModel
+):
     # Base configuration
     base_url: Optional[str] = Field(default=None, description="Base API URL")
     timeout: int = Field(default=30, description="Request timeout in seconds")
@@ -28,13 +38,17 @@ class AbstractGateway(HasSnakeShortClassNameClassMixin, WithRequiredIoManager, H
     # Default request configuration
     default_headers: Dict[str, str] = Field(default=None, description="Default headers for requests")
 
-    def model_post_init(self, *args, **kwargs):
-        super().model_post_init(*args, **kwargs)
+    def __init__(self, io_manager: "Any", **kwargs):
+        BaseModel.__init__(self, **kwargs)
+        WithRequiredIoManager.__init__(self, io=io_manager)
 
+    def setup(self) -> "AbstractGateway":
         self._validate_env_keys()
 
         if self.default_headers is None:
             self.default_headers = {}
+
+        return self
 
     @classmethod
     def get_class_name_suffix(cls) -> Optional[str]:
