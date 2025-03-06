@@ -40,6 +40,7 @@ class AbstractGateway(
 
     def __init__(self, io_manager: "Any", **kwargs):
         BaseModel.__init__(self, **kwargs)
+        HasEnvKeys.__init__(self)
         WithRequiredIoManager.__init__(self, io=io_manager)
 
     def setup(self) -> "AbstractGateway":
