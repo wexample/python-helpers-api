@@ -22,8 +22,8 @@ dependencies = [
     "pip-tools",
     "pytest",
     "requests",
-    "wexample-helpers==0.0.31",
-    "wexample-prompt==0.0.32",
+    "wexample-helpers>=0.0.31",
+    "wexample-prompt>=0.0.32",
 ]
 
 [project.readme]
