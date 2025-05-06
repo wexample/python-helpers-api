@@ -5,69 +5,69 @@
 #    pip-compile /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
 #
 annotated-types==0.7.0
-# via pydantic
+    # via pydantic
 build==1.2.2.post1
-# via pip-tools
+    # via pip-tools
 certifi==2024.12.14
-# via requests
+    # via requests
 charset-normalizer==3.4.1
-# via requests
+    # via requests
 click==8.1.8
-# via pip-tools
+    # via pip-tools
 colorama==0.4.6
-# via wexample-prompt
+    # via wexample-prompt
 idna==3.10
-# via requests
+    # via requests
 iniconfig==2.0.0
-# via pytest
+    # via pytest
 inquirerpy==0.3.4
-# via wexample-prompt
+    # via wexample-prompt
 packaging==24.2
-# via
-#   build
-#   pytest
+    # via
+    #   build
+    #   pytest
 pfzy==0.3.4
-# via inquirerpy
+    # via inquirerpy
 pip-tools==7.4.1
-# via
-#   -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
-#   wexample-helpers
-#   wexample-prompt
+    # via
+    #   -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
+    #   wexample-helpers
+    #   wexample-prompt
 pluggy==1.5.0
-# via pytest
+    # via pytest
 prompt-toolkit==3.0.50
-# via inquirerpy
+    # via inquirerpy
 pydantic==2.10.5
-# via
-#   wexample-helpers
-#   wexample-prompt
+    # via
+    #   wexample-helpers
+    #   wexample-prompt
 pydantic-core==2.27.2
-# via pydantic
+    # via pydantic
 pyproject-hooks==1.2.0
-# via
-#   build
-#   pip-tools
+    # via
+    #   build
+    #   pip-tools
 pytest==8.3.4
-# via
-#   -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
-#   wexample-helpers
-#   wexample-prompt
+    # via
+    #   -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
+    #   wexample-helpers
+    #   wexample-prompt
 requests==2.32.3
-# via -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
+    # via -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
 typing-extensions==4.12.2
-# via
-#   pydantic
-#   pydantic-core
+    # via
+    #   pydantic
+    #   pydantic-core
 urllib3==2.3.0
-# via requests
+    # via requests
 wcwidth==0.2.13
-# via prompt-toolkit
-wexample-helpers==0.0.30
-# via -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
-wexample-prompt==0.0.31
-# via -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
+    # via prompt-toolkit
+wexample-helpers==0.0.52
+    # via -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
+wexample-prompt==0.0.34
+    # via -r /home/weeger/Desktop/WIP/WEB/WEXAMPLE/PIP/pip/helpers-api/requirements.in
 wheel==0.45.1
-# via pip-tools
+    # via pip-tools
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
