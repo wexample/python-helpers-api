@@ -20,17 +20,20 @@ class HttpRequestPayload(BaseModel):
 
     @classmethod
     def from_endpoint(
-        cls,
-        base_url: str,
-        endpoint: str,
-        method: HttpMethod = HttpMethod.GET,
-        data: Optional[Dict[str, Any]] = None,
-        query_params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        call_origin: Optional[str] = None,
-        expected_status_codes: Optional[Union[int, List[int]]] = None
+            cls,
+            base_url: Optional[str],
+            endpoint: str,
+            method: HttpMethod = HttpMethod.GET,
+            data: Optional[Dict[str, Any]] = None,
+            query_params: Optional[Dict[str, Any]] = None,
+            headers: Optional[Dict[str, str]] = None,
+            call_origin: Optional[str] = None,
+            expected_status_codes: Optional[Union[int, List[int]]] = None
     ) -> "HttpRequestPayload":
-        url = f"{base_url.rstrip('/')}/{endpoint.lstrip('/')}"
+        if base_url:
+            url = f"{base_url.rstrip('/')}/{endpoint.lstrip('/')}"
+        else:
+            url = endpoint
 
         if isinstance(expected_status_codes, int):
             expected_status_codes = [expected_status_codes]
