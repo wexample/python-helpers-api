@@ -150,14 +150,29 @@ class AbstractGateway(
         self._handle_rate_limiting()
 
         try:
-            response = requests.request(
-                method=payload.method.value,
-                url=payload.url,
-                json=payload.data,
-                params=payload.query_params,
-                headers=payload.headers,
-                timeout=self.timeout
-            )
+            # Determine how to send the data based on Content-Type header
+            content_type = payload.headers.get('Content-Type', '').lower() if payload.headers else ''
+            
+            # For form-urlencoded requests, use data parameter instead of json
+            if content_type == 'application/x-www-form-urlencoded' and payload.data:
+                response = requests.request(
+                    method=payload.method.value,
+                    url=payload.url,
+                    data=payload.data,  # Send as form data
+                    params=payload.query_params,
+                    headers=payload.headers,
+                    timeout=self.timeout
+                )
+            else:
+                # Default behavior for JSON and other content types
+                response = requests.request(
+                    method=payload.method.value,
+                    url=payload.url,
+                    json=payload.data,
+                    params=payload.query_params,
+                    headers=payload.headers,
+                    timeout=self.timeout
+                )
 
             exception = None
             if response.status_code not in payload.expected_status_codes:
