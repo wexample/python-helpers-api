@@ -1,10 +1,17 @@
 from enum import Enum
 
 class HttpMethod(Enum):
-    GET = "GET"
-    POST = "POST"
-    PUT = "PUT"
-    DELETE = "DELETE"
-    PATCH = "PATCH"
-    OPTIONS = "OPTIONS"
-    HEAD = "HEAD"
+    GET: str = "GET"
+    POST: str = "POST"
+    PUT: str = "PUT"
+    DELETE: str = "DELETE"
+    PATCH: str = "PATCH"
+    OPTIONS: str = "OPTIONS"
+    HEAD: str = "HEAD"
+
+
+class ContentType(Enum):
+    JSON: str = 'application/json'
+    FORM_URLENCODED: str = 'application/x-www-form-urlencoded'
+    MULTIPART: str = 'multipart/form-data'
+    TEXT: str = 'text/plain'

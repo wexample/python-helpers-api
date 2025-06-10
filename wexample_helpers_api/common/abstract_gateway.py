@@ -11,7 +11,7 @@ from wexample_helpers.const.types import StringsList
 from wexample_helpers.errors.gateway_error import GatewayError
 from wexample_helpers.helpers.cli import cli_make_clickable_path
 from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
-from wexample_helpers_api.enums.http import HttpMethod
+from wexample_helpers_api.enums.http import HttpMethod, ContentType
 from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
 
 if TYPE_CHECKING:
@@ -154,7 +154,7 @@ class AbstractGateway(
             content_type = payload.headers.get('Content-Type', '').lower() if payload.headers else ''
             
             # For form-urlencoded requests, use data parameter instead of json
-            if content_type == 'application/x-www-form-urlencoded' and payload.data:
+            if content_type == ContentType.FORM_URLENCODED.value and payload.data:
                 response = requests.request(
                     method=payload.method.value,
                     url=payload.url,
