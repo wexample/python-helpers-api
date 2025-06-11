@@ -155,39 +155,45 @@ class AbstractGateway(
             # Determine how to send the data based on Content-Type header
             content_type = payload.headers.get(CONTENT_TYPE, '').lower() if payload.headers else ''
             
-            # For form-urlencoded requests, use data parameter instead of json
-            if (
-                    (content_type == ContentType.FORM_URLENCODED.value and payload.data)
-                    or (content_type == ContentType.FORM_URLENCODED and isinstance(payload.data, bytes))
-            ):
+            # Log request information
+            if payload.data:
+                if isinstance(payload.data, bytes):
+                    self.io.log(f"Sending binary data, size: {len(payload.data)} bytes")
+                elif isinstance(payload.data, tuple) and len(payload.data) == 2:
+                    form_data, files_dict = payload.data
+                    self.io.log(f"Sending multipart request with {len(files_dict)} files")
+                else:
+                    self.io.log(f"Sending data of type: {type(payload.data).__name__}")
+            
+            # Handle different content types
+            if content_type == ContentType.FORM_URLENCODED.value and payload.data:
+                # For form-urlencoded requests, use data parameter
                 response = requests.request(
                     method=payload.method.value,
                     url=payload.url,
-                    data=payload.data,  # Send as form data
+                    data=payload.data,
                     params=payload.query_params,
                     headers=payload.headers,
                     timeout=self.timeout
                 )
-            # For binary data (application/octet-stream), send raw bytes
-            elif content_type == 'application/octet-stream' and isinstance(payload.data, bytes):
-                self.io.log(f"Sending binary data, size: {len(payload.data)} bytes")
+            elif content_type == ContentType.OCTET_STREAM.value and isinstance(payload.data, bytes):
+                # For binary data (application/octet-stream), send raw bytes
                 response = requests.request(
                     method=payload.method.value,
                     url=payload.url,
-                    data=payload.data,  # Send as raw binary data
+                    data=payload.data,
                     params=payload.query_params,
                     headers=payload.headers,
                     timeout=self.timeout
                 )
-            # For multipart/form-data with files
             elif content_type == ContentType.MULTIPART.value and isinstance(payload.data, tuple):
+                # For multipart/form-data with files
                 form_data, files_dict = payload.data
-                self.io.log(f"Sending multipart request with {len(files_dict)} files")
                 response = requests.request(
                     method=payload.method.value,
                     url=payload.url,
                     data=form_data,
-                    files=files_dict,  # Send files dictionary
+                    files=files_dict,
                     params=payload.query_params,
                     headers=payload.headers,
                     timeout=self.timeout
