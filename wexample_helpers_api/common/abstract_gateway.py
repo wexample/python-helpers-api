@@ -25,16 +25,15 @@ class AbstractGateway(
     HasTwoStepInit,
     BaseModel
 ):
-    base_url: Optional[str] = Field(default=None)
-    timeout: int = Field(default=30)
-    quiet: bool = Field(default=False)
+    # Base configuration
+    base_url: Optional[str] = Field(default=None, description="Base API URL")
+    timeout: int = Field(default=30, description="Request timeout in seconds")
+    quiet: bool = Field(default=False, description="If True, only show errors and warnings")
 
     # State
-    connected: bool = Field(default=False)
-    last_request_time: Optional[float] = Field(default=None)
-    rate_limit_delay: float = Field(default=1.0)
-
-    default_headers: Dict[str, str] = Field(default_factory=dict)
+    connected: bool = Field(default=False, description="Connection state")
+    last_request_time: Optional[float] = Field(default=None, description="Timestamp of last request")
+    rate_limit_delay: float = Field(default=1.0, description="Minimum delay between requests in seconds")
 
     max_retries: int = Field(default=3)
     backoff_factor: float = Field(default=0.3)
@@ -100,7 +99,7 @@ class AbstractGateway(
         try:
             data = response.json()
             if isinstance(data, dict):
-                message = data.get("message") or data.get("error") or message
+                message = data.get("message", data.get("error", message))
         except (ValueError, AttributeError):
             if response.text:
                 message = response.text
