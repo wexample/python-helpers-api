@@ -1,7 +1,7 @@
+import time
 from typing import Optional, Dict, Any, Union, List, TYPE_CHECKING, Mapping
 
 import requests
-import time
 from pydantic import BaseModel, Field
 
 from wexample_helpers.classes.mixin.has_env_keys import HasEnvKeys
@@ -117,12 +117,12 @@ class AbstractGateway(
             details["Status"] = status_code
         return details
 
-    def _get_response_content(self, response: requests.Response) -> Dict[str, Any]:
+    def _get_response_content(self, response: Optional[requests.Response]) -> Dict[str, Any]:
         """Extract and format response content for logging."""
         try:
-            return {"Response Content": response.json()}
+            return {"Response Content": response.json() if response else "No content"}
         except (ValueError, AttributeError):
-            return {"Response Content": response.text or "No content"}
+            return {"Response Content": response.text if response else "No content"}
 
     def _get_header_value(
             self,
