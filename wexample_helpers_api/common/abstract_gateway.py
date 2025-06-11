@@ -119,10 +119,13 @@ class AbstractGateway(
 
     def _get_response_content(self, response: Optional[requests.Response]) -> Dict[str, Any]:
         """Extract and format response content for logging."""
+        if response is None:
+            return {"Response Content": "Null response"}
+        
         try:
-            return {"Response Content": response.json() if response else "No content"}
+            return {"Response Content": response.json() or "No content"}
         except (ValueError, AttributeError):
-            return {"Response Content": response.text if response else "No content"}
+            return {"Response Content": response.text or "No content"}
 
     def _get_header_value(
             self,
@@ -271,4 +274,4 @@ class AbstractGateway(
             exception=exception,
             fatal=fatal_on_error,
         )
-        return None
+        return response
