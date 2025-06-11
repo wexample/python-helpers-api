@@ -1,9 +1,9 @@
+from typing import Optional, Dict, Any, Union, List, TYPE_CHECKING, Mapping
+
 import requests
 import time
 from pydantic import BaseModel, Field
-from requests.adapters import HTTPAdapter
-from typing import Optional, Dict, Any, Union, List, TYPE_CHECKING, Mapping
-from urllib3.util.retry import Retry
+
 from wexample_helpers.classes.mixin.has_env_keys import HasEnvKeys
 from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import HasSnakeShortClassNameClassMixin
 from wexample_helpers.classes.mixin.has_two_steps_init import HasTwoStepInit
@@ -35,31 +35,20 @@ class AbstractGateway(
     last_request_time: Optional[float] = Field(default=None, description="Timestamp of last request")
     rate_limit_delay: float = Field(default=1.0, description="Minimum delay between requests in seconds")
 
-    max_retries: int = Field(default=3)
-    backoff_factor: float = Field(default=0.3)
-
-    session: Optional[Any] = False
+    # Default request configuration
+    default_headers: Dict[str, str] = Field(default=None, description="Default headers for requests")
 
     def __init__(self, io_manager: "Any", **kwargs):
         BaseModel.__init__(self, **kwargs)
         HasEnvKeys.__init__(self)
         WithRequiredIoManager.__init__(self, io=io_manager)
 
-        self.session = requests.Session()
-        retry = Retry(
-            total=self.max_retries,
-            backoff_factor=self.backoff_factor,
-            status_forcelist=(429, 500, 502, 503, 504),
-            allowed_methods=frozenset(
-                ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"]
-            ),
-        )
-        adapter = HTTPAdapter(max_retries=retry)
-        self.session.mount("http://", adapter)
-        self.session.mount("https://", adapter)
-
     def setup(self) -> "AbstractGateway":
         self._validate_env_keys()
+
+        if self.default_headers is None:
+            self.default_headers = {}
+
         return self
 
     @classmethod
@@ -215,7 +204,7 @@ class AbstractGateway(
             request_kwargs["json"] = data
 
         try:
-            response = self.session.request(**request_kwargs)
+            response = requests.request(**request_kwargs)
         except requests.exceptions.RequestException as exc:
             return self.handle_api_response(
                 response=None,
