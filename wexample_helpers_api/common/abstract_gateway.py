@@ -11,7 +11,7 @@ from wexample_helpers.const.types import StringsList
 from wexample_helpers.errors.gateway_error import GatewayError
 from wexample_helpers.helpers.cli import cli_make_clickable_path
 from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
-from wexample_helpers_api.enums.http import HttpMethod, ContentType
+from wexample_helpers_api.enums.http import HttpMethod, ContentType, Header
 from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
 
 if TYPE_CHECKING:
@@ -133,8 +133,6 @@ class AbstractGateway(
             fatal_if_unexpected: bool = False,
             quiet: Optional[bool] = None
     ) -> requests.Response:
-        from wexample_helpers_api.const.http import CONTENT_TYPE
-
         payload = HttpRequestPayload.from_endpoint(
             self.get_base_url(),
             endpoint,
@@ -153,7 +151,7 @@ class AbstractGateway(
 
         try:
             # Determine how to send the data based on Content-Type header
-            content_type = payload.headers.get(CONTENT_TYPE, '').lower() if payload.headers else ''
+            content_type = payload.headers.get(Header.CONTENT_TYPE.value, '').lower() if payload.headers else ''
             
             # Log request information
             if payload.data:

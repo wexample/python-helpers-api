@@ -9,5 +9,3 @@ HTTP_METHOD_MAP = {
     "OPTIONS": HttpMethod.OPTIONS,
     "HEAD": HttpMethod.HEAD
 }
-
-CONTENT_TYPE = 'Content-Type'
