@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, List, Union
+from typing import Optional, Dict, Any, List, Union, TypeVar, Generic
 
 from pydantic import BaseModel
 
@@ -8,7 +8,7 @@ from wexample_helpers_api.enums.http import HttpMethod
 class HttpRequestPayload(BaseModel):
     url: str
     method: HttpMethod = HttpMethod.GET
-    data: Optional[Dict[str, Any]] = None
+    data: Optional[Union[Dict[str, Any], bytes]] = None
     query_params: Optional[Dict[str, Any]] = None
     headers: Optional[Dict[str, str]] = None
     call_origin: Optional[str] = None
@@ -24,7 +24,7 @@ class HttpRequestPayload(BaseModel):
             base_url: Optional[str],
             endpoint: str,
             method: HttpMethod = HttpMethod.GET,
-            data: Optional[Dict[str, Any]] = None,
+            data: Optional[Union[Dict[str, Any], bytes]] = None,
             query_params: Optional[Dict[str, Any]] = None,
             headers: Optional[Dict[str, str]] = None,
             call_origin: Optional[str] = None,

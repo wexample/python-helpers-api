@@ -107,7 +107,10 @@ class AbstractGateway(
         if request_context.call_origin:
             details["Call Origin"] = cli_make_clickable_path(request_context.call_origin)
         if request_context.data:
-            details["Data"] = request_context.data
+            if isinstance(request_context.data, bytes):
+                details["Data"] = f"<Binary data: {len(request_context.data)} bytes>"
+            else:
+                details["Data"] = request_context.data
         if request_context.query_params:
             details["Query Parameters"] = request_context.query_params
         if status_code is not None:
