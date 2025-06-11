@@ -1,4 +1,4 @@
-from typing import Optional, Dict, Any, Union, List, TYPE_CHECKING
+from typing import Optional, Dict, Any, Union, List, TYPE_CHECKING, Mapping
 
 import requests
 import time
@@ -121,6 +121,30 @@ class AbstractGateway(
                 return {"Response Content": response.text}
             return {"Response Content": "No content"}
 
+    def _get_header_value(
+            self,
+            headers: Optional[Mapping[str, str]],
+            name: Header,
+    ) -> Optional[str]:
+        """
+        Case-insensitive lookup of a header followed by normalisation:
+        - keep only the part before the first ';'
+        - trim whitespace
+        - convert to lower-case
+        """
+        if not headers:
+            return None
+
+        raw_value = next(
+            (v for k, v in headers.items() if k.lower() == name.value.lower()),
+            None,
+        )
+        if raw_value is None:
+            return None
+
+        value = raw_value.split(";", 1)[0].strip().lower()
+        return value or None
+
     def make_request(
             self,
             endpoint: str,
@@ -131,17 +155,17 @@ class AbstractGateway(
             call_origin: Optional[str] = None,
             expected_status_codes: Optional[Union[int, List[int]]] = None,
             fatal_if_unexpected: bool = False,
-            quiet: Optional[bool] = None
+            quiet: bool = False
     ) -> requests.Response:
         payload = HttpRequestPayload.from_endpoint(
-            self.get_base_url(),
-            endpoint,
-            method,
-            data,
-            query_params,
-            {**self.default_headers, **(headers or {})},
+            base_url=self.get_base_url(),
+            endpoint=endpoint,
+            method=method,
+            data=data,
+            query_params=query_params,
+            headers={**self.default_headers, **(headers or {})},
             call_origin=call_origin,
-            expected_status_codes=expected_status_codes
+            expected_status_codes=expected_status_codes,
         )
 
         if not self.connected:
@@ -149,84 +173,63 @@ class AbstractGateway(
 
         self._handle_rate_limiting()
 
-        try:
-            # Determine how to send the data based on Content-Type header
-            content_type = payload.headers.get(Header.CONTENT_TYPE.value, '').lower() if payload.headers else ''
-            
-            # Log request information
-            if payload.data:
-                if isinstance(payload.data, bytes):
-                    self.io.log(f"Sending binary data, size: {len(payload.data)} bytes")
-                elif isinstance(payload.data, tuple) and len(payload.data) == 2:
-                    form_data, files_dict = payload.data
-                    self.io.log(f"Sending multipart request with {len(files_dict)} files")
-                else:
-                    self.io.log(f"Sending data of type: {type(payload.data).__name__}")
-            
-            # Handle different content types
-            if content_type == ContentType.FORM_URLENCODED.value and payload.data:
-                # For form-urlencoded requests, use data parameter
-                response = requests.request(
-                    method=payload.method.value,
-                    url=payload.url,
-                    data=payload.data,
-                    params=payload.query_params,
-                    headers=payload.headers,
-                    timeout=self.timeout
-                )
-            elif content_type == ContentType.OCTET_STREAM.value and isinstance(payload.data, bytes):
-                # For binary data (application/octet-stream), send raw bytes
-                response = requests.request(
-                    method=payload.method.value,
-                    url=payload.url,
-                    data=payload.data,
-                    params=payload.query_params,
-                    headers=payload.headers,
-                    timeout=self.timeout
-                )
-            elif content_type == ContentType.MULTIPART.value and isinstance(payload.data, tuple):
-                # For multipart/form-data with files
-                form_data, files_dict = payload.data
-                response = requests.request(
-                    method=payload.method.value,
-                    url=payload.url,
-                    data=form_data,
-                    files=files_dict,
-                    params=payload.query_params,
-                    headers=payload.headers,
-                    timeout=self.timeout
-                )
+        # Determine how to send the data based on Content-Type header
+        content_type = self._get_header_value(payload.headers, Header.CONTENT_TYPE)
+
+        if payload.data is not None:
+            if isinstance(payload.data, bytes):
+                self.io.log(f"Sending binary payload ({len(payload.data)} bytes)")
+            elif isinstance(payload.data, tuple):
+                form_fields, files_dict = payload.data
+                self.io.log(f"Sending multipart payload with {len(files_dict)} file(s)")
             else:
-                # Default behavior for JSON and other content types
-                response = requests.request(
-                    method=payload.method.value,
-                    url=payload.url,
-                    json=payload.data,
-                    params=payload.query_params,
-                    headers=payload.headers,
-                    timeout=self.timeout
-                )
+                self.io.log(f"Sending {type(payload.data).__name__} payload")
 
-            exception = None
-            if response.status_code not in payload.expected_status_codes:
-                exception = GatewayError(self._extract_error_message(response))
+        request_kwargs: Dict[str, Any] = {
+            "method": payload.method.value,
+            "url": payload.url,
+            "params": payload.query_params,
+            "headers": payload.headers,
+            "timeout": self.timeout,
+        }
 
-            return self.handle_api_response(
-                response=response,
-                request_context=payload,
-                exception=exception,
-                fatal_on_error=fatal_if_unexpected,
-                quiet=quiet
-            )
+        # Decide which body key to use
+        if content_type == ContentType.MULTIPART.value and isinstance(payload.data, tuple):
+            form_fields, files_dict = payload.data
+            request_kwargs["data"] = form_fields
+            request_kwargs["files"] = files_dict
+        elif content_type in (ContentType.FORM_URLENCODED.value, ContentType.OCTET_STREAM.value):
+            request_kwargs["data"] = payload.data
+        else:
+            request_kwargs["json"] = payload.data   # default: JSON / text / unknown CT
 
-        except requests.exceptions.RequestException as e:
+        try:
+            response = requests.request(**request_kwargs)
+        except requests.exceptions.RequestException as exc:
             return self.handle_api_response(
                 response=None,
                 request_context=payload,
-                exception=GatewayError(f"Request failed: {str(e)}"),
+                exception=GatewayError(f"Request failed: {exc}"),
                 fatal_on_error=fatal_if_unexpected,
-                quiet=quiet
+                quiet=quiet,
             )
+
+        expected_set = (
+            {expected_status_codes}
+            if isinstance(expected_status_codes, int)
+            else set(expected_status_codes or {200})
+        )
+        exception = None
+        if response.status_code not in expected_set:
+            exception = GatewayError(self._extract_error_message(response))
+
+        return self.handle_api_response(
+            response=response,
+            request_context=payload,
+            exception=exception,
+            fatal_on_error=fatal_if_unexpected,
+            quiet=quiet,
+        )
 
     def handle_api_response(
             self,
