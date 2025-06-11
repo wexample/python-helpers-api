@@ -125,7 +125,7 @@ class AbstractGateway(
             self,
             endpoint: str,
             method: HttpMethod = HttpMethod.GET,
-            data: Optional[Dict[str, Any]] = None,
+            data: Optional[Union[Dict[str, Any], bytes, tuple]] = None,
             query_params: Optional[Dict[str, Any]] = None,
             headers: Optional[Dict[str, str]] = None,
             call_origin: Optional[str] = None,
@@ -164,6 +164,30 @@ class AbstractGateway(
                     method=payload.method.value,
                     url=payload.url,
                     data=payload.data,  # Send as form data
+                    params=payload.query_params,
+                    headers=payload.headers,
+                    timeout=self.timeout
+                )
+            # For binary data (application/octet-stream), send raw bytes
+            elif content_type == 'application/octet-stream' and isinstance(payload.data, bytes):
+                self.io.log(f"Sending binary data, size: {len(payload.data)} bytes")
+                response = requests.request(
+                    method=payload.method.value,
+                    url=payload.url,
+                    data=payload.data,  # Send as raw binary data
+                    params=payload.query_params,
+                    headers=payload.headers,
+                    timeout=self.timeout
+                )
+            # For multipart/form-data with files
+            elif content_type == ContentType.MULTIPART.value and isinstance(payload.data, tuple):
+                form_data, files_dict = payload.data
+                self.io.log(f"Sending multipart request with {len(files_dict)} files")
+                response = requests.request(
+                    method=payload.method.value,
+                    url=payload.url,
+                    data=form_data,
+                    files=files_dict,  # Send files dictionary
                     params=payload.query_params,
                     headers=payload.headers,
                     timeout=self.timeout
