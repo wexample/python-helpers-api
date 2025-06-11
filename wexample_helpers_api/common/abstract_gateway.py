@@ -133,6 +133,8 @@ class AbstractGateway(
             fatal_if_unexpected: bool = False,
             quiet: Optional[bool] = None
     ) -> requests.Response:
+        from wexample_helpers_api.const.http import CONTENT_TYPE
+
         payload = HttpRequestPayload.from_endpoint(
             self.get_base_url(),
             endpoint,
@@ -151,10 +153,13 @@ class AbstractGateway(
 
         try:
             # Determine how to send the data based on Content-Type header
-            content_type = payload.headers.get('Content-Type', '').lower() if payload.headers else ''
+            content_type = payload.headers.get(CONTENT_TYPE, '').lower() if payload.headers else ''
             
             # For form-urlencoded requests, use data parameter instead of json
-            if content_type == ContentType.FORM_URLENCODED.value and payload.data:
+            if (
+                    (content_type == ContentType.FORM_URLENCODED.value and payload.data)
+                    or (content_type == ContentType.FORM_URLENCODED and isinstance(payload.data, bytes))
+            ):
                 response = requests.request(
                     method=payload.method.value,
                     url=payload.url,

@@ -15,3 +15,4 @@ class ContentType(Enum):
     FORM_URLENCODED: str = 'application/x-www-form-urlencoded'
     MULTIPART: str = 'multipart/form-data'
     TEXT: str = 'text/plain'
+    OCTET_STREAM: str = 'application/octet-stream'
