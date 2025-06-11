@@ -117,7 +117,7 @@ class AbstractGateway(
             details["Status"] = status_code
         return details
 
-    def _get_response_content(self, response: Optional[requests.Response]) -> str:
+    def format_response_content(self, response: Optional[requests.Response]) -> str:
         """Extract and format response content for logging."""
         if response is None:
             return "Null response"
@@ -263,7 +263,7 @@ class AbstractGateway(
         # Combine request details with response content
         details = {
             **self._create_request_details(request_context, response.status_code),
-            "Response Content": self._get_response_content(response),
+            "Response Content": self.format_response_content(response),
         }
 
         if not is_quiet:
