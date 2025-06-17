@@ -162,6 +162,7 @@ class AbstractGateway(
             fatal_if_unexpected: bool = False,
             quiet: bool = False,
             stream: bool = False,
+            timeout: Optional[int] = None
     ) -> Optional[requests.Response]:
         payload = HttpRequestPayload.from_endpoint(
             base_url=self.get_base_url(),
@@ -197,7 +198,7 @@ class AbstractGateway(
             "url": payload.url,
             "params": payload.query_params,
             "headers": payload.headers,
-            "timeout": self.timeout,
+            "timeout": timeout or self.timeout,
             "stream": stream,
         }
 
