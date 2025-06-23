@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wexample-helpers-api"
-version = "0.0.23"
+version = "0.0.24"
 description = "Some python basic helpers for apis."
 authors = [
     { name = "weeger", email = "contact@wexample.com" },

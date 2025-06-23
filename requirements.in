@@ -1,5 +1,5 @@
 requests
-wexample-helpers==0.0.59
-wexample-prompt==0.0.38
+wexample-helpers==0.0.60
+wexample-prompt==0.0.40
 pytest
 pip-tools
