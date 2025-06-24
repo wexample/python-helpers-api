@@ -34,6 +34,7 @@ class AbstractGateway(
     connected: bool = Field(default=False, description="Connection state")
     last_request_time: Optional[float] = Field(default=None, description="Timestamp of last request")
     rate_limit_delay: float = Field(default=1.0, description="Minimum delay between requests in seconds")
+    last_exception: Optional[Exception] = Field(default=None, description="Last exception encountered during request")
 
     # Default request configuration
     default_headers: Dict[str, str] = Field(default=None, description="Default headers for requests")
@@ -162,7 +163,8 @@ class AbstractGateway(
             fatal_if_unexpected: bool = False,
             quiet: bool = False,
             stream: bool = False,
-            timeout: Optional[int] = None
+            timeout: Optional[int] = None,
+            raise_exceptions: bool = False
     ) -> Optional[requests.Response]:
         payload = HttpRequestPayload.from_endpoint(
             base_url=self.get_base_url(),
@@ -213,10 +215,16 @@ class AbstractGateway(
         try:
             response = requests.request(**request_kwargs)
         except requests.exceptions.RequestException as exc:
+            gateway_error = GatewayError(f"Request failed: {exc}")
+            gateway_error.__cause__ = exc
+            
+            if raise_exceptions:
+                raise gateway_error
+                
             return self.handle_api_response(
                 response=None,
                 request_context=payload,
-                exception=GatewayError(f"Request failed: {exc}"),
+                exception=gateway_error,
                 fatal_on_error=fatal_if_unexpected,
                 quiet=quiet,
             )
@@ -226,6 +234,8 @@ class AbstractGateway(
         exception = None
         if response.status_code not in expected:
             exception = GatewayError(self._extract_error_message(response))
+            if raise_exceptions and exception:
+                raise exception
 
         return self.handle_api_response(
             response=response,
@@ -235,6 +245,15 @@ class AbstractGateway(
             quiet=quiet,
         )
 
+    def has_error(self) -> bool:
+        return self.last_exception is not None
+        
+    def get_last_error(self) -> Optional[Exception]:
+        return self.last_exception
+        
+    def clear_error(self) -> None:
+        self.last_exception = None
+
     def handle_api_response(
             self,
             response: Optional[requests.Response],
@@ -243,6 +262,7 @@ class AbstractGateway(
             fatal_on_error: bool = False,
             quiet: Optional[bool] = None,
     ) -> Optional[requests.Response]:
+        self.last_exception = exception
         is_quiet = self.quiet if quiet is None else quiet
 
         if response is None:
