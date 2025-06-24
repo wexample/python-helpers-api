@@ -34,7 +34,7 @@ class AbstractGateway(
     connected: bool = Field(default=False, description="Connection state")
     last_request_time: Optional[float] = Field(default=None, description="Timestamp of last request")
     rate_limit_delay: float = Field(default=1.0, description="Minimum delay between requests in seconds")
-    last_exception: Optional[Exception] = Field(default=None, description="Last exception encountered during request")
+    last_exception: Any = Field(default=None, description="Last exception encountered during request")
 
     # Default request configuration
     default_headers: Dict[str, str] = Field(default=None, description="Default headers for requests")
