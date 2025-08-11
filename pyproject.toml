@@ -7,7 +7,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wexample-helpers-api"
-version = "0.0.27"
+version = "0.0.28"
 description = "Some python basic helpers for apis."
 authors = [
     { name = "weeger", email = "contact@wexample.com" },
@@ -22,8 +22,8 @@ dependencies = [
     "pip-tools",
     "pytest",
     "requests",
-    "wexample-helpers==0.0.57",
-    "wexample-prompt==0.0.38",
+    "wexample-helpers",
+    "wexample-prompt",
 ]
 
 [project.readme]
