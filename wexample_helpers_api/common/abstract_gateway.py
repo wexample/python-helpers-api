@@ -4,16 +4,16 @@ from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Union
 import requests
 from pydantic import BaseModel, Field
 from wexample_helpers.classes.mixin.has_env_keys import HasEnvKeys
-from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import \
-    HasSnakeShortClassNameClassMixin
+from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import (
+    HasSnakeShortClassNameClassMixin,
+)
 from wexample_helpers.classes.mixin.has_two_steps_init import HasTwoStepInit
 from wexample_helpers.const.types import StringsList
 from wexample_helpers.errors.gateway_error import GatewayError
 from wexample_helpers.helpers.cli import cli_make_clickable_path
 from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
 from wexample_helpers_api.enums.http import ContentType, Header, HttpMethod
-from wexample_prompt.mixins.with_required_io_manager import \
-    WithRequiredIoManager
+from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
 
 if TYPE_CHECKING:
     pass
@@ -50,7 +50,7 @@ class AbstractGateway(
         default=None, description="Default headers for requests"
     )
 
-    def __init__(self, io_manager: "Any", **kwargs):
+    def __init__(self, io_manager: "Any", **kwargs) -> None:
         BaseModel.__init__(self, **kwargs)
         HasEnvKeys.__init__(self)
         WithRequiredIoManager.__init__(self, io=io_manager)
@@ -90,7 +90,7 @@ class AbstractGateway(
     def get_expected_env_keys(self) -> StringsList:
         return []
 
-    def _handle_rate_limiting(self):
+    def _handle_rate_limiting(self) -> None:
         if self.last_request_time is not None:
             elapsed = time.time() - self.last_request_time
             if elapsed < self.rate_limit_delay:

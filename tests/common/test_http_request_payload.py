@@ -9,7 +9,7 @@ from wexample_helpers_api.enums.http import HttpMethod
 class TestHttpRequestPayload(unittest.TestCase):
     """Test cases for HttpRequestPayload class."""
 
-    def test_from_url(self):
+    def test_from_url(self) -> None:
         """Test creating HttpRequestPayload from URL."""
         url = "https://api.example.com/endpoint"
         payload = HttpRequestPayload.from_url(url)
@@ -20,7 +20,7 @@ class TestHttpRequestPayload(unittest.TestCase):
         self.assertIsNone(payload.query_params)
         self.assertIsNone(payload.headers)
 
-    def test_from_endpoint_basic(self):
+    def test_from_endpoint_basic(self) -> None:
         """Test creating HttpRequestPayload from endpoint with basic parameters."""
         base_url = "https://api.example.com"
         endpoint = "/users"
@@ -32,7 +32,7 @@ class TestHttpRequestPayload(unittest.TestCase):
         self.assertIsNone(payload.query_params)
         self.assertIsNone(payload.headers)
 
-    def test_from_endpoint_with_trailing_slash(self):
+    def test_from_endpoint_with_trailing_slash(self) -> None:
         """Test creating HttpRequestPayload with trailing slash in base_url."""
         base_url = "https://api.example.com/"
         endpoint = "/users"
@@ -40,7 +40,7 @@ class TestHttpRequestPayload(unittest.TestCase):
 
         self.assertEqual(payload.url, "https://api.example.com/users")
 
-    def test_from_endpoint_without_leading_slash(self):
+    def test_from_endpoint_without_leading_slash(self) -> None:
         """Test creating HttpRequestPayload without leading slash in endpoint."""
         base_url = "https://api.example.com"
         endpoint = "users"
@@ -48,7 +48,7 @@ class TestHttpRequestPayload(unittest.TestCase):
 
         self.assertEqual(payload.url, "https://api.example.com/users")
 
-    def test_from_endpoint_with_all_parameters(self):
+    def test_from_endpoint_with_all_parameters(self) -> None:
         """Test creating HttpRequestPayload with all optional parameters."""
         base_url = "https://api.example.com"
         endpoint = "/users"
@@ -72,7 +72,7 @@ class TestHttpRequestPayload(unittest.TestCase):
         self.assertEqual(payload.query_params, query_params)
         self.assertEqual(payload.headers, headers)
 
-    def test_direct_instantiation(self):
+    def test_direct_instantiation(self) -> None:
         """Test direct instantiation of HttpRequestPayload."""
         url = "https://api.example.com/endpoint"
         method = HttpMethod.PUT

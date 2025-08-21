@@ -12,7 +12,7 @@ def io_manager():
 
 
 @pytest.fixture
-def mock_env(monkeypatch):
+def mock_env(monkeypatch) -> None:
     """Fixture to set up environment variables for tests"""
     monkeypatch.setenv("DEMO_API_KEY", "test_api_key")
 
@@ -30,16 +30,16 @@ def create_mock_response(status_code=200, json_data=None):
     return mock_response
 
 
-def test_get_expected_env_keys(gateway):
+def test_get_expected_env_keys(gateway) -> None:
     assert gateway.get_expected_env_keys() == ["DEMO_API_KEY"]
 
 
-def test_check_connection(gateway):
+def test_check_connection(gateway) -> None:
     assert gateway.check_connection() is True
 
 
 @patch("requests.request")
-def test_get_user_info(mock_request, gateway):
+def test_get_user_info(mock_request, gateway) -> None:
     # Arrange
     expected_data = {"id": 1, "name": "Test User"}
     mock_request.return_value = create_mock_response(json_data=expected_data)
@@ -61,7 +61,7 @@ def test_get_user_info(mock_request, gateway):
 
 
 @patch("requests.request")
-def test_create_item(mock_request, gateway):
+def test_create_item(mock_request, gateway) -> None:
     # Arrange
     item_data = {"name": "Test Item"}
     expected_response = {"id": 1, **item_data}
@@ -84,7 +84,7 @@ def test_create_item(mock_request, gateway):
 
 
 @patch("requests.request")
-def test_update_item(mock_request, gateway):
+def test_update_item(mock_request, gateway) -> None:
     # Arrange
     item_id = "123"
     item_data = {"name": "Updated Item"}
@@ -108,7 +108,7 @@ def test_update_item(mock_request, gateway):
 
 
 @patch("requests.request")
-def test_delete_item(mock_request, gateway):
+def test_delete_item(mock_request, gateway) -> None:
     # Arrange
     item_id = "123"
     mock_request.return_value = create_mock_response()
@@ -128,7 +128,7 @@ def test_delete_item(mock_request, gateway):
     )
 
 
-def test_not_connected_error(gateway):
+def test_not_connected_error(gateway) -> None:
     # Arrange
     gateway.connected = False
 
@@ -137,10 +137,11 @@ def test_not_connected_error(gateway):
         gateway.get_user_info()
 
 
-def test_missing_env_variable(io_manager, monkeypatch):
+def test_missing_env_variable(io_manager, monkeypatch) -> None:
     """Test that gateway initialization fails when required env variable is missing"""
-    from wexample_helpers.errors.missing_required_env_var_error import \
-        MissingRequiredEnvVarError
+    from wexample_helpers.errors.missing_required_env_var_error import (
+        MissingRequiredEnvVarError,
+    )
 
     # Remove the environment variable
     monkeypatch.delenv("DEMO_API_KEY", raising=False)
