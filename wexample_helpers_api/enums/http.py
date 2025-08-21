@@ -12,11 +12,11 @@ class HttpMethod(Enum):
 
 
 class ContentType(Enum):
-    JSON: str = 'application/json'
-    FORM_URLENCODED: str = 'application/x-www-form-urlencoded'
-    MULTIPART: str = 'multipart/form-data'
-    TEXT: str = 'text/plain'
-    OCTET_STREAM: str = 'application/octet-stream'
+    JSON: str = "application/json"
+    FORM_URLENCODED: str = "application/x-www-form-urlencoded"
+    MULTIPART: str = "multipart/form-data"
+    TEXT: str = "text/plain"
+    OCTET_STREAM: str = "application/octet-stream"
 
 
 class Header(Enum):

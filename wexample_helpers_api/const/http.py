@@ -7,5 +7,5 @@ HTTP_METHOD_MAP = {
     "DELETE": HttpMethod.DELETE,
     "PATCH": HttpMethod.PATCH,
     "OPTIONS": HttpMethod.OPTIONS,
-    "HEAD": HttpMethod.HEAD
+    "HEAD": HttpMethod.HEAD,
 }
