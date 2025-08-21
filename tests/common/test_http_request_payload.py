@@ -1,4 +1,5 @@
 """Tests for HttpRequestPayload class."""
+
 import unittest
 
 from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
@@ -62,7 +63,7 @@ class TestHttpRequestPayload(unittest.TestCase):
             method=method,
             data=data,
             query_params=query_params,
-            headers=headers
+            headers=headers,
         )
 
         self.assertEqual(payload.url, "https://api.example.com/users")
@@ -84,7 +85,7 @@ class TestHttpRequestPayload(unittest.TestCase):
             method=method,
             data=data,
             query_params=query_params,
-            headers=headers
+            headers=headers,
         )
 
         self.assertEqual(payload.url, url)
