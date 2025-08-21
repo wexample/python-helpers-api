@@ -1,7 +1,7 @@
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
-from wexample_helpers_api.common.abstract_gateway import AbstractGateway
 from wexample_helpers.const.types import StringsList
+from wexample_helpers_api.common.abstract_gateway import AbstractGateway
 from wexample_helpers_api.enums.http import HttpMethod
 
 

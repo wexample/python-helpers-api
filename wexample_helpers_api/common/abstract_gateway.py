@@ -1,20 +1,19 @@
 import time
-from typing import Optional, Dict, Any, Union, List, TYPE_CHECKING, Mapping
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Union
 
 import requests
 from pydantic import BaseModel, Field
-
 from wexample_helpers.classes.mixin.has_env_keys import HasEnvKeys
-from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import (
-    HasSnakeShortClassNameClassMixin,
-)
+from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import \
+    HasSnakeShortClassNameClassMixin
 from wexample_helpers.classes.mixin.has_two_steps_init import HasTwoStepInit
 from wexample_helpers.const.types import StringsList
 from wexample_helpers.errors.gateway_error import GatewayError
 from wexample_helpers.helpers.cli import cli_make_clickable_path
 from wexample_helpers_api.common.http_request_payload import HttpRequestPayload
-from wexample_helpers_api.enums.http import HttpMethod, ContentType, Header
-from wexample_prompt.mixins.with_required_io_manager import WithRequiredIoManager
+from wexample_helpers_api.enums.http import ContentType, Header, HttpMethod
+from wexample_prompt.mixins.with_required_io_manager import \
+    WithRequiredIoManager
 
 if TYPE_CHECKING:
     pass

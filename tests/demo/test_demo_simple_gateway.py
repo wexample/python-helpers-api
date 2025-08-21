@@ -1,7 +1,7 @@
-import pytest
-from unittest.mock import patch, MagicMock
-from requests import Response
+from unittest.mock import MagicMock, patch
 
+import pytest
+from requests import Response
 from wexample_helpers_api.demo.demo_simple_gateway import DemoSimpleGateway
 from wexample_prompt.common.io_manager import IoManager
 
@@ -139,9 +139,8 @@ def test_not_connected_error(gateway):
 
 def test_missing_env_variable(io_manager, monkeypatch):
     """Test that gateway initialization fails when required env variable is missing"""
-    from wexample_helpers.errors.missing_required_env_var_error import (
-        MissingRequiredEnvVarError,
-    )
+    from wexample_helpers.errors.missing_required_env_var_error import \
+        MissingRequiredEnvVarError
 
     # Remove the environment variable
     monkeypatch.delenv("DEMO_API_KEY", raising=False)

@@ -1,7 +1,6 @@
-from typing import Optional, Dict, Any, List, Union, TypeVar, Generic
+from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 from pydantic import BaseModel
-
 from wexample_helpers_api.enums.http import HttpMethod
 
 
