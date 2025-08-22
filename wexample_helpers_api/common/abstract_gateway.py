@@ -53,12 +53,12 @@ class AbstractGateway(
         default=None, description="Default headers for requests"
     )
 
-    def __init__(self, io_manager: "Any", **kwargs) -> None:
+    def __init__(self, io_manager: Any, **kwargs) -> None:
         BaseModel.__init__(self, **kwargs)
         HasEnvKeys.__init__(self)
         WithRequiredIoManager.__init__(self, io=io_manager)
 
-    def setup(self) -> "AbstractGateway":
+    def setup(self) -> AbstractGateway:
         self._validate_env_keys()
 
         if self.default_headers is None:

@@ -16,7 +16,7 @@ class HttpRequestPayload(BaseModel):
     expected_status_codes: list[int] = [200]
 
     @classmethod
-    def from_url(cls, url: str, call_origin: str | None = None) -> "HttpRequestPayload":
+    def from_url(cls, url: str, call_origin: str | None = None) -> HttpRequestPayload:
         return cls(url=url, call_origin=call_origin)
 
     @classmethod
@@ -30,7 +30,7 @@ class HttpRequestPayload(BaseModel):
         headers: dict[str, str] | None = None,
         call_origin: str | None = None,
         expected_status_codes: int | list[int] | None = None,
-    ) -> "HttpRequestPayload":
+    ) -> HttpRequestPayload:
         if base_url:
             url = f"{base_url.rstrip('/')}/{endpoint.lstrip('/')}"
         else:
