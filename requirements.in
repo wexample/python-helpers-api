@@ -1,5 +1,4 @@
 pip-tools
-pytest
 requests
 wexample-helpers
 wexample-prompt
