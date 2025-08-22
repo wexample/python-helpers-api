@@ -1,5 +1,6 @@
 import time
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from collections.abc import Mapping
 
 import requests
 from pydantic import BaseModel, Field
@@ -27,7 +28,7 @@ class AbstractGateway(
     BaseModel,
 ):
     # Base configuration
-    base_url: Optional[str] = Field(default=None, description="Base API URL")
+    base_url: str | None = Field(default=None, description="Base API URL")
     timeout: int = Field(default=30, description="Request timeout in seconds")
     quiet: bool = Field(
         default=False, description="If True, only show errors and warnings"
@@ -35,7 +36,7 @@ class AbstractGateway(
 
     # State
     connected: bool = Field(default=False, description="Connection state")
-    last_request_time: Optional[float] = Field(
+    last_request_time: float | None = Field(
         default=None, description="Timestamp of last request"
     )
     rate_limit_delay: float = Field(
@@ -46,7 +47,7 @@ class AbstractGateway(
     )
 
     # Default request configuration
-    default_headers: Dict[str, str] = Field(
+    default_headers: dict[str, str] = Field(
         default=None, description="Default headers for requests"
     )
 
@@ -64,10 +65,10 @@ class AbstractGateway(
         return self
 
     @classmethod
-    def get_class_name_suffix(cls) -> Optional[str]:
+    def get_class_name_suffix(cls) -> str | None:
         return "GatewayService"
 
-    def get_base_url(self) -> Optional[str]:
+    def get_base_url(self) -> str | None:
         return self.base_url
 
     def connect(self) -> bool:
@@ -78,7 +79,7 @@ class AbstractGateway(
         return self.connected
 
     def check_status_code(
-        self, expected_status_codes: Union[int, List[int]] = 200
+        self, expected_status_codes: int | list[int] = 200
     ) -> bool:
         return (
             self.make_request(
@@ -110,10 +111,10 @@ class AbstractGateway(
         return message
 
     def _create_request_details(
-        self, request_context: HttpRequestPayload, status_code: Optional[int] = None
-    ) -> Dict[str, Any]:
+        self, request_context: HttpRequestPayload, status_code: int | None = None
+    ) -> dict[str, Any]:
         """Create request details dictionary for logging."""
-        details: Dict[str, Any] = {
+        details: dict[str, Any] = {
             "URL": request_context.url,
             "Method": request_context.method,
         }
@@ -132,7 +133,7 @@ class AbstractGateway(
             details["Status"] = status_code
         return details
 
-    def format_response_content(self, response: Optional[requests.Response]) -> str:
+    def format_response_content(self, response: requests.Response | None) -> str:
         """Extract and format response content for logging."""
         if response is None:
             return "Null response"
@@ -144,9 +145,9 @@ class AbstractGateway(
 
     def _get_header_value(
         self,
-        headers: Optional[Mapping[str, str]],
+        headers: Mapping[str, str] | None,
         name: Header,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Case-insensitive lookup of a header followed by normalisation:
         - keep only the part before the first ';'
@@ -168,18 +169,18 @@ class AbstractGateway(
         self,
         endpoint: str,
         method: HttpMethod = HttpMethod.GET,
-        data: Optional[Union[Dict[str, Any], bytes]] = None,
-        query_params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        files: Optional[Union[Dict[str, Any], List[tuple]]] = None,
-        call_origin: Optional[str] = None,
-        expected_status_codes: Optional[Union[int, List[int]]] = None,
+        data: dict[str, Any] | bytes | None = None,
+        query_params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        files: dict[str, Any] | list[tuple] | None = None,
+        call_origin: str | None = None,
+        expected_status_codes: int | list[int] | None = None,
         fatal_if_unexpected: bool = False,
         quiet: bool = False,
         stream: bool = False,
-        timeout: Optional[int] = None,
+        timeout: int | None = None,
         raise_exceptions: bool = False,
-    ) -> Optional[requests.Response]:
+    ) -> requests.Response | None:
         payload = HttpRequestPayload.from_endpoint(
             base_url=self.get_base_url(),
             endpoint=endpoint,
@@ -209,7 +210,7 @@ class AbstractGateway(
             else:
                 self.io.log(f"Sending {type(payload.data).__name__} payload")
 
-        request_kwargs: Dict[str, Any] = {
+        request_kwargs: dict[str, Any] = {
             "method": payload.method.value,
             "url": payload.url,
             "params": payload.query_params,
@@ -268,7 +269,7 @@ class AbstractGateway(
     def has_error(self) -> bool:
         return self.last_exception is not None
 
-    def get_last_error(self) -> Optional[Exception]:
+    def get_last_error(self) -> Exception | None:
         return self.last_exception
 
     def clear_error(self) -> None:
@@ -276,12 +277,12 @@ class AbstractGateway(
 
     def handle_api_response(
         self,
-        response: Optional[requests.Response],
+        response: requests.Response | None,
         request_context: HttpRequestPayload,
-        exception: Optional[Exception] = None,
+        exception: Exception | None = None,
         fatal_on_error: bool = False,
-        quiet: Optional[bool] = None,
-    ) -> Optional[requests.Response]:
+        quiet: bool | None = None,
+    ) -> requests.Response | None:
         self.last_exception = exception
         is_quiet = self.quiet if quiet is None else quiet
 

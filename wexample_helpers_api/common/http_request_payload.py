@@ -7,29 +7,29 @@ from wexample_helpers_api.enums.http import HttpMethod
 class HttpRequestPayload(BaseModel):
     url: str
     method: HttpMethod = HttpMethod.GET
-    data: Optional[Union[Dict[str, Any], bytes]] = None
-    query_params: Optional[Dict[str, Any]] = None
-    headers: Optional[Dict[str, str]] = None
-    call_origin: Optional[str] = None
-    expected_status_codes: List[int] = [200]
+    data: dict[str, Any] | bytes | None = None
+    query_params: dict[str, Any] | None = None
+    headers: dict[str, str] | None = None
+    call_origin: str | None = None
+    expected_status_codes: list[int] = [200]
 
     @classmethod
     def from_url(
-        cls, url: str, call_origin: Optional[str] = None
+        cls, url: str, call_origin: str | None = None
     ) -> "HttpRequestPayload":
         return cls(url=url, call_origin=call_origin)
 
     @classmethod
     def from_endpoint(
         cls,
-        base_url: Optional[str],
+        base_url: str | None,
         endpoint: str,
         method: HttpMethod = HttpMethod.GET,
-        data: Optional[Union[Dict[str, Any], bytes]] = None,
-        query_params: Optional[Dict[str, Any]] = None,
-        headers: Optional[Dict[str, str]] = None,
-        call_origin: Optional[str] = None,
-        expected_status_codes: Optional[Union[int, List[int]]] = None,
+        data: dict[str, Any] | bytes | None = None,
+        query_params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        call_origin: str | None = None,
+        expected_status_codes: int | list[int] | None = None,
     ) -> "HttpRequestPayload":
         if base_url:
             url = f"{base_url.rstrip('/')}/{endpoint.lstrip('/')}"

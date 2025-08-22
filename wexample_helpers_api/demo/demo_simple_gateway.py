@@ -15,14 +15,14 @@ class DemoSimpleGateway(AbstractGateway):
         # Always return True for demo purposes
         return True
 
-    def get_user_info(self) -> Dict[str, Any]:
+    def get_user_info(self) -> dict[str, Any]:
         """Demo method to get user information."""
         response = self.make_request(
             method=HttpMethod.GET, endpoint="/user", call_origin=__file__
         )
         return response.json()
 
-    def create_item(self, item_data: Dict[str, Any]) -> Dict[str, Any]:
+    def create_item(self, item_data: dict[str, Any]) -> dict[str, Any]:
         """Demo method to create an item."""
         response = self.make_request(
             method=HttpMethod.POST,
@@ -32,7 +32,7 @@ class DemoSimpleGateway(AbstractGateway):
         )
         return response.json()
 
-    def update_item(self, item_id: str, item_data: Dict[str, Any]) -> Dict[str, Any]:
+    def update_item(self, item_id: str, item_data: dict[str, Any]) -> dict[str, Any]:
         """Demo method to update an item."""
         response = self.make_request(
             method=HttpMethod.PUT,
