@@ -1,6 +1,6 @@
 import time
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 import requests
 from pydantic import BaseModel, Field
@@ -78,9 +78,7 @@ class AbstractGateway(
     def check_connexion(self) -> bool:
         return self.connected
 
-    def check_status_code(
-        self, expected_status_codes: int | list[int] = 200
-    ) -> bool:
+    def check_status_code(self, expected_status_codes: int | list[int] = 200) -> bool:
         return (
             self.make_request(
                 endpoint="", expected_status_codes=expected_status_codes, quiet=True
