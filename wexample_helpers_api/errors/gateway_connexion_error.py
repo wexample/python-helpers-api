@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from wexample_helpers.errors.gateway_error import GatewayError
 
 

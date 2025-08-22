@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 
 from wexample_helpers.const.types import StringsList
