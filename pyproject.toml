@@ -36,4 +36,9 @@ homepage = "https://github.com/wexample/python-helpers-api"
 dev = ["pytest"]
 
 [tool.pdm.build]
-includes = ["python_package_workdir/py.typed"]
+includes = ["python_package_workdir/py.typed", "src/python_package_workdir/py.typed"]
+package-dir = "src"
+
+[[tool.pdm.build.packages]]
+include = "python_package_workdir"
+from = "src"
