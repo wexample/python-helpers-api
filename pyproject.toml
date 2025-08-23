@@ -20,7 +20,6 @@ classifiers = [
 ]
 dependencies = [
     "pip-tools",
-    "pytest",
     "requests",
     "wexample-helpers",
     "wexample-prompt",
@@ -35,3 +34,6 @@ text = "MIT"
 
 [project.urls]
 homepage = "https://github.com/wexample/python-helpers-api"
+
+[project.optional-dependencies]
+dev = ["pytest"]
