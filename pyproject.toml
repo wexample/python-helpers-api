@@ -1,9 +1,6 @@
 [build-system]
-requires = [
-    "setuptools",
-    "wheel",
-]
-build-backend = "setuptools.build_meta"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
 
 [project]
 name = "wexample-helpers-api"
@@ -12,7 +9,7 @@ description = "Some python basic helpers for apis."
 authors = [
     { name = "weeger", email = "contact@wexample.com" },
 ]
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -37,3 +34,6 @@ homepage = "https://github.com/wexample/python-helpers-api"
 
 [project.optional-dependencies]
 dev = ["pytest"]
+
+[tool.pdm.build]
+includes = ["python_package_workdir/py.typed"]
