@@ -12,7 +12,7 @@ description = "Some python basic helpers for apis."
 authors = [
     { name = "weeger", email = "contact@wexample.com" },
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
