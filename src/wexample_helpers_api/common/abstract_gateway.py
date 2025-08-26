@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 import requests
 from pydantic import BaseModel, Field
 
-from wexample_helpers.classes.mixin.has_env_keys import HasEnvKeys
 from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import (
     HasSnakeShortClassNameClassMixin,
 )
@@ -26,7 +25,6 @@ if TYPE_CHECKING:
 class AbstractGateway(
     HasSnakeShortClassNameClassMixin,
     WithRequiredIoManager,
-    HasEnvKeys,
     HasTwoStepInit,
     BaseModel,
 ):
@@ -55,7 +53,6 @@ class AbstractGateway(
 
     def __init__(self, io: Any, **kwargs) -> None:
         BaseModel.__init__(self, **kwargs)
-        HasEnvKeys.__init__(self)
         WithRequiredIoManager.__init__(self, io=io)
 
     def setup(self) -> AbstractGateway:

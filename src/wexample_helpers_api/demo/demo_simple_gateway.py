@@ -2,16 +2,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from wexample_helpers.const.types import StringsList
 from wexample_helpers_api.common.abstract_gateway import AbstractGateway
 from wexample_helpers_api.enums.http import HttpMethod
 
 
 class DemoSimpleGateway(AbstractGateway):
     """A simple implementation of AbstractGateway for demonstration purposes."""
-
-    def get_expected_env_keys(self) -> StringsList:
-        return ["DEMO_API_KEY"]
 
     def check_connection(self) -> bool:
         # Always return True for demo purposes
