@@ -1,20 +1,19 @@
-# Helpers Api
+# wexample-helpers-api
 
 Some python basic helpers for apis.
 
-Version: 0.0.15
+Version: 0.0.28
 
 ## Requirements
 
-- Python >=3.6
+- Python >=3.10
 
 ## Dependencies
 
-- pip-tools
-- pytest
+- pydantic>=2,<3
 - requests
-- wexample-helpers==0.0.30
-- wexample-prompt==0.0.31
+- wexample-helpers==0.0.64
+- wexample-prompt==0.0.43
 
 ## Installation
 
