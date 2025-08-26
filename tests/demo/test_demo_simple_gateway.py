@@ -13,7 +13,6 @@ def io_manager():
     return IoManager()
 
 
-
 @pytest.fixture
 def gateway(io_manager, mock_env):
     """Gateway fixture that depends on mock_env to ensure environment variables are set"""
@@ -128,4 +127,3 @@ def test_not_connected_error(gateway) -> None:
     # Act & Assert
     with pytest.raises(AttributeError):
         gateway.get_user_info()
-
