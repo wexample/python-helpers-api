@@ -2,7 +2,7 @@
 
 Some python basic helpers for apis.
 
-Version: 0.0.28
+Version: 0.0.29
 
 ## Requirements
 
