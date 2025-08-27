@@ -37,6 +37,9 @@ dev = [
     "pytest",
 ]
 
+[tool.pdm]
+distribution = true
+
 [tool.pdm.build]
 includes = [
     "src/wexample_helpers_api/py.typed",
