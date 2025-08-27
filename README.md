@@ -12,8 +12,8 @@ Version: 0.0.29
 
 - pydantic>=2,<3
 - requests
-- wexample-helpers==0.0.64
-- wexample-prompt==0.0.43
+- wexample-helpers==0.0.65
+- wexample-prompt==0.0.44
 
 ## Installation
 
