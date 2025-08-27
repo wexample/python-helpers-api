@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any
 
 import requests
 from pydantic import BaseModel, Field
-
 from wexample_helpers.classes.mixin.has_snake_short_class_name_class_mixin import (
     HasSnakeShortClassNameClassMixin,
 )
@@ -52,16 +51,13 @@ class AbstractGateway(
     )
 
     def __init__(
-            self,
-            io: IoManager | None = None,
-            parent_io_handler: WithIoManager | None = None,
-            **kwargs) -> None:
+        self,
+        io: IoManager | None = None,
+        parent_io_handler: WithIoManager | None = None,
+        **kwargs,
+    ) -> None:
         BaseModel.__init__(self, **kwargs)
-        WithIoManager.__init__(
-            self,
-            io=io,
-            parent_io_handler=parent_io_handler
-        )
+        WithIoManager.__init__(self, io=io, parent_io_handler=parent_io_handler)
 
     def setup(self) -> AbstractGateway:
         self._validate_env_keys()
@@ -87,10 +83,10 @@ class AbstractGateway(
 
     def check_status_code(self, expected_status_codes: int | list[int] = 200) -> bool:
         return (
-                self.make_request(
-                    endpoint="", expected_status_codes=expected_status_codes, quiet=True
-                )
-                is not None
+            self.make_request(
+                endpoint="", expected_status_codes=expected_status_codes, quiet=True
+            )
+            is not None
         )
 
     def get_expected_env_keys(self) -> StringsList:
@@ -116,7 +112,7 @@ class AbstractGateway(
         return message
 
     def _create_request_details(
-            self, request_context: HttpRequestPayload, status_code: int | None = None
+        self, request_context: HttpRequestPayload, status_code: int | None = None
     ) -> dict[str, Any]:
         """Create request details dictionary for logging."""
         details: dict[str, Any] = {
@@ -149,9 +145,9 @@ class AbstractGateway(
             return response.text
 
     def _get_header_value(
-            self,
-            headers: Mapping[str, str] | None,
-            name: Header,
+        self,
+        headers: Mapping[str, str] | None,
+        name: Header,
     ) -> str | None:
         """
         Case-insensitive lookup of a header followed by normalisation:
@@ -171,20 +167,20 @@ class AbstractGateway(
         return raw.split(";", 1)[0].strip().lower() or None
 
     def make_request(
-            self,
-            endpoint: str,
-            method: HttpMethod = HttpMethod.GET,
-            data: dict[str, Any] | bytes | None = None,
-            query_params: dict[str, Any] | None = None,
-            headers: dict[str, str] | None = None,
-            files: dict[str, Any] | list[tuple] | None = None,
-            call_origin: str | None = None,
-            expected_status_codes: int | list[int] | None = None,
-            fatal_if_unexpected: bool = False,
-            quiet: bool = False,
-            stream: bool = False,
-            timeout: int | None = None,
-            raise_exceptions: bool = False,
+        self,
+        endpoint: str,
+        method: HttpMethod = HttpMethod.GET,
+        data: dict[str, Any] | bytes | None = None,
+        query_params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        files: dict[str, Any] | list[tuple] | None = None,
+        call_origin: str | None = None,
+        expected_status_codes: int | list[int] | None = None,
+        fatal_if_unexpected: bool = False,
+        quiet: bool = False,
+        stream: bool = False,
+        timeout: int | None = None,
+        raise_exceptions: bool = False,
     ) -> requests.Response | None:
         payload = HttpRequestPayload.from_endpoint(
             base_url=self.get_base_url(),
@@ -228,8 +224,8 @@ class AbstractGateway(
             request_kwargs["data"] = data or {}
             request_kwargs["files"] = files
         elif content_type in (
-                ContentType.FORM_URLENCODED.value,
-                ContentType.OCTET_STREAM.value,
+            ContentType.FORM_URLENCODED.value,
+            ContentType.OCTET_STREAM.value,
         ):
             request_kwargs["data"] = data
         else:
@@ -281,12 +277,12 @@ class AbstractGateway(
         self.last_exception = None
 
     def handle_api_response(
-            self,
-            response: requests.Response | None,
-            request_context: HttpRequestPayload,
-            exception: Exception | None = None,
-            fatal_on_error: bool = False,
-            quiet: bool | None = None,
+        self,
+        response: requests.Response | None,
+        request_context: HttpRequestPayload,
+        exception: Exception | None = None,
+        fatal_on_error: bool = False,
+        quiet: bool | None = None,
     ) -> requests.Response | None:
         self.last_exception = exception
         is_quiet = self.quiet if quiet is None else quiet
