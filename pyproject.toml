@@ -33,10 +33,14 @@ text = "MIT"
 homepage = "https://github.com/wexample/python-helpers-api"
 
 [project.optional-dependencies]
-dev = ["pytest"]
+dev = [
+    "pytest",
+]
 
 [tool.pdm.build]
-includes = ["src/wexample_helpers_api/py.typed"]
+includes = [
+    "src/wexample_helpers_api/py.typed",
+]
 package-dir = "src"
 
 [[tool.pdm.build.packages]]
