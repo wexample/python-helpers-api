@@ -22,3 +22,5 @@ htmlcov/
 .idea/
 *.swp
 *~
+.pdm-python
+.python-version
